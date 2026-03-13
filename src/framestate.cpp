@@ -2,8 +2,6 @@
 
 #include "led_controller.h"
 
-FrameState frameState;
-
 void FrameState::init(byte input)
 {
 	currentLed = 0;
@@ -13,7 +11,6 @@ void FrameState::init(byte input)
 	fletcher2 = 0;
 	fletcherExt = 0;
 	position = 0;
-	base.dropLateFrame();
 }
 
 uint8_t FrameState::getCRC()
@@ -78,26 +75,3 @@ void FrameState::addFletcher(byte input)
 	fletcher2 = (fletcher2 + fletcher1) % 255;
 	fletcherExt = (fletcherExt + (input ^ (position++))) % 255;
 }
-
-void FrameState::updateIncomingCalibration()
-{
-#if defined(NEOPIXEL_RGBW)
-	if (protocolVersion2)
-	{
-		calibrationConfig.setParamsAndPrepareCalibration(calibration.gain, calibration.red, calibration.green, calibration.blue);
-	}
-#endif
-}
-
-#if defined(NEOPIXEL_RGBW)
-void FrameState::rgb2rgbw()
-{
-	color.W = min(channelCorrection.red[color.R],
-				  min(channelCorrection.green[color.G],
-					  channelCorrection.blue[color.B]));
-	color.R -= channelCorrection.red[color.W];
-	color.G -= channelCorrection.green[color.W];
-	color.B -= channelCorrection.blue[color.W];
-	color.W = channelCorrection.white[color.W];
-}
-#endif

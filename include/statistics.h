@@ -98,4 +98,4 @@ class Statistics
 
 };
 
-extern Statistics statistics;
+extern Statristics statistics;

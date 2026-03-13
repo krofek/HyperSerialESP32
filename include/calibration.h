@@ -29,6 +29,7 @@
 
 #include "fastled_adapter.h"
 #include <stdint.h>
+#include "config.h"
 
 #ifdef NEOPIXEL_RGBW
 	typedef RgbwColor ColorDefinition;
@@ -37,7 +38,7 @@
 #endif
 
 
-#if defined(NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
+#if defined(NEOPIXEL_RGBW)
 
 struct ChannelCorrection
 {
@@ -47,9 +48,7 @@ struct ChannelCorrection
 	uint8_t blue[256];
 };
 
-extern ChannelCorrection channelCorrection;
-
-class CalibrationConfig
+class Calibration
 {
 	// calibration parameters
 	uint8_t gain = 0xFF;
@@ -57,16 +56,18 @@ class CalibrationConfig
 	uint8_t green = 0xA0;
 	uint8_t blue = 0xA0;
 
-	void prepareCalibration();
+	ChannelCorrection channelCorrection;
+
+	void prepare();
 
 	public:
-		CalibrationConfig();
+		Calibration();
 
 		/**
 		 * @brief Compare base calibration settings
 		 *
 		 */
-		bool compareCalibrationSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
+		bool compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
 		/**
 		 * @brief Set the parameters that define RGB to RGBW transformation
@@ -76,15 +77,16 @@ class CalibrationConfig
 		 * @param _green
 		 * @param _blue
 		 */
-		void setParamsAndPrepareCalibration(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
+		void setParamsAndPrepare(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
 		/**
 		 * @brief print RGBW calibration parameters when no data is received
 		 *
 		 */
-		void printCalibration();
+		void print();
 };
 
-extern CalibrationConfig calibrationConfig;
+extern Calibration calibration;
+
 #endif
 

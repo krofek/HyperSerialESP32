@@ -3,8 +3,6 @@
 #include <algorithm>
 #include "calibration.h"
 
-Statistics statistics;
-
 unsigned long Statistics::getStartTime()
 {
 	return startTime;
@@ -60,10 +58,6 @@ void Statistics::print(unsigned long curTime, TaskHandle_t taskHandle1, TaskHand
 			(taskHandle2 != nullptr) ? uxTaskGetStackHighWaterMark(taskHandle2) : 0,
 			ESP.getFreeHeap());
 	Serial.print(output);
-
-#if defined(NEOPIXEL_RGBW)
-	calibrationConfig.printCalibration();
-#endif
 }
 
 void Statistics::reset(unsigned long currentTime)

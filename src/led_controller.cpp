@@ -2,26 +2,24 @@
 
 #include "statistics.h"
 
-Base base;
-
-int Base::getLedsNumber()
+int LedController::getLedsNumber()
 {
 	return ledsNumber;
 }
 
-LED_DRIVER* Base::getLedStrip1()
+LED_DRIVER* LedController::getLedStrip1()
 {
 	return ledStrip1;
 }
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-LED_DRIVER2* Base::getLedStrip2()
+LED_DRIVER2* LedController::getLedStrip2()
 {
 	return ledStrip2;
 }
 #endif
 
-void Base::initLedStrip(int count)
+void LedController::initLedStrip(int count)
 {
 	if (ledStrip1 != nullptr)
 	{
@@ -68,46 +66,44 @@ void Base::initLedStrip(int count)
 	}
 }
 
-bool Base::hasLateFrameToRender()
+bool LedController::hasLateFrameToRender()
 {
 	return readyToRender;
 }
 
-void Base::dropLateFrame()
+void LedController::dropLateFrame()
 {
 	readyToRender = false;
 }
 
-void Base::renderLeds(bool newFrame)
-{
-	if (newFrame)
-		readyToRender = true;
+bool LedController::canRender(bool newFrame)
+{  
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-	if (readyToRender &&
+ return newFrame &&
 		(ledStrip1 != nullptr && ledStrip1->CanShow()) &&
-		!(ledStrip2 != nullptr && !ledStrip2->CanShow()))
-	{
-		statistics.increaseShow();
-		readyToRender = false;
-
-		ledStrip1->Show(false);
-#if !defined(HYPERSERIAL_USE_FASTLED) || defined(HYPERSERIAL_TESTING)
-		if (ledStrip2 != nullptr)
-			ledStrip2->Show(false);
-#endif
-	}
+		!(ledStrip2 != nullptr && !ledStrip2->CanShow());
 #else
-	if (readyToRender && ledStrip1 != nullptr && ledStrip1->CanShow())
-	{
-		statistics.increaseShow();
-		readyToRender = false;
-		ledStrip1->Show(false);
-	}
+	return newFrame && ledStrip1 != nullptr && ledStrip1->CanShow();
+#endif
+
+}
+
+void LedController::renderLeds()
+{
+#if defined(SECOND_SEGMENT_START_INDEX)
+    readyToRender = false;
+
+    ledStrip1->Show(false);
+    if (ledStrip2 != nullptr)
+        ledStrip2->Show(false);
+#else
+	readyToRender = false;
+	ledStrip1->Show(false);
 #endif
 }
 
-bool Base::setStripPixel(uint16_t pix, ColorDefinition &inputColor)
+bool LedController::setStripPixel(uint16_t pix, ColorDefinition &inputColor)
 {
 	if (pix < ledsNumber)
 	{

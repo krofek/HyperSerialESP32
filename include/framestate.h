@@ -171,15 +171,6 @@ class FrameState
 		 */
 		void updateIncomingCalibration();
 
-
-		#ifdef NEOPIXEL_RGBW
-			/**
-			* @brief Compute && correct the white channel
-			*
-			*/
-			void rgb2rgbw();
-		#endif
-
 		/**
 		 * @brief Incoming calibration data
 		 *
@@ -191,7 +182,6 @@ class FrameState
 			uint8_t green = 0;
 			uint8_t blue = 0;
 		} calibration;
-
 };
 
 extern FrameState frameState;

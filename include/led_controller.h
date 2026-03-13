@@ -39,7 +39,7 @@
 	#endif
 #endif
 
-class Base
+class LedController
 {
 	int ledsNumber = 0;
 	LED_DRIVER* ledStrip1 = nullptr;
@@ -57,6 +57,8 @@ class Base
 		volatile int queueEnd = 0;
 
 		int getLedsNumber();
+
+		bool canRender(bool newFrame);
 
 		LED_DRIVER* getLedStrip1();
 #if defined(SECOND_SEGMENT_START_INDEX)
@@ -78,10 +80,10 @@ class Base
 #if defined(SECOND_SEGMENT_START_INDEX)				
 		void renderLeds(bool newFrame);
 #else
-		void renderLeds(bool newFrame);
+		void renderLeds();
 #endif
 
 		bool setStripPixel(uint16_t pix, ColorDefinition &inputColor);
 };
 
-extern Base base;
+extern LedController controller;

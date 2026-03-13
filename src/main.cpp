@@ -59,21 +59,22 @@ void setup()
 	Serial.setRxBufferSize(MAX_BUFFER - 1);
 	Serial.setTimeout(50);
 	Serial.begin(SERIALCOM_SPEED);
+
 	while (!Serial) continue;
 
 	#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
 		#ifdef NEOPIXEL_RGBW
 			#ifdef COLD_WHITE
-				calibrationConfig.setParamsAndPrepareCalibration(0xFF, 0xA0, 0xA0, 0xA0);
+				calibration.setParamsAndPrepare(0xFF, 0xA0, 0xA0, 0xA0);
 			#else
-				calibrationConfig.setParamsAndPrepareCalibration(0xFF, 0xB0, 0xB0, 0x70);
+				calibration.setParamsAndPrepare(0xFF, 0xB0, 0xB0, 0x70);
 			#endif
 		#endif
 	#endif
 
 	#if !defined(CONFIG_IDF_TARGET_ESP32S2)
-		// Display config
 		Serial.println(HELLO_MESSAGE);
+
 		#if defined(SECOND_SEGMENT_START_INDEX)
 			Serial.write("SECOND_SEGMENT_START_INDEX = ");
 			Serial.println(SECOND_SEGMENT_START_INDEX);
@@ -82,20 +83,12 @@ void setup()
 		// Colorspace/Led type info
 		#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
 			#ifdef NEOPIXEL_RGBW
-				#if HYPERSERIAL_FASTLED_RGBW_EMULATION
-					#ifdef COLD_WHITE
-						Serial.println("FastLED SK6812 cold GRBW (RGBW emulation). ");
-					#else
-						Serial.println("FastLED SK6812 neutral GRBW (RGBW emulation). ");
-					#endif
+				#ifdef COLD_WHITE
+					Serial.println("FastLED SK6812 cold GRBW. ");
 				#else
-					#ifdef COLD_WHITE
-						Serial.println("FastLED SK6812 cold GRBW (W channel disabled). ");
-					#else
-						Serial.println("FastLED SK6812 neutral GRBW (W channel disabled). ");
-					#endif
+					Serial.println("FastLED SK6812 neutral GRBW. ");
 				#endif
-				calibrationConfig.printCalibration();
+				calibration.print();
 			#else
 				Serial.println("FastLED ws281x type (GRB).");
 			#endif
@@ -114,9 +107,9 @@ void setup()
 		powerControl.init();
 	#endif
 
-#ifdef HS_MULTICORE
+	#ifdef HS_MULTICORE
 		adalight.setupMultiCore();
-#endif
+	#endif
 }
 
 void loop()

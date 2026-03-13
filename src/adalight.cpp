@@ -9,8 +9,6 @@
 #include "powercontrol.h"
 #endif
 
-Adalight adalight;
-
 void Adalight::processDataTaskStatic(void * parameters)
 {
 	Adalight *self = static_cast<Adalight*>(parameters);
@@ -36,7 +34,7 @@ void Adalight::processSerialTask(void * parameters)
 {
 	for(;;)
 	{
-		if (serialTaskHandler() || base.queueCurrent != base.queueEnd)
+		if (serialTaskHandler() || controller.queueCurrent != controller.queueEnd)
 			xSemaphoreGive(i2sXSemaphore);
 		yield();
 	}
@@ -48,17 +46,17 @@ bool Adalight::serialTaskHandler()
 
 	if (incomingSize > 0)
 	{
-		if (base.queueEnd + incomingSize < MAX_BUFFER)
+		if (controller.queueEnd + incomingSize < MAX_BUFFER)
 		{
-			Serial.read(&(base.buffer[base.queueEnd]), incomingSize);
-			base.queueEnd += incomingSize;
+			Serial.read(&(controller.buffer[controller.queueEnd]), incomingSize);
+			controller.queueEnd += incomingSize;
 		}
 		else
 		{
-			int left = MAX_BUFFER - base.queueEnd;
-			Serial.read(&(base.buffer[base.queueEnd]), left);
-			Serial.read(&(base.buffer[0]), incomingSize - left);
-			base.queueEnd = incomingSize - left;
+			int left = MAX_BUFFER - controller.queueEnd;
+			Serial.read(&(controller.buffer[controller.queueEnd]), left);
+			Serial.read(&(controller.buffer[0]), incomingSize - left);
+			controller.queueEnd = incomingSize - left;
 		}
 	}
 
@@ -82,23 +80,28 @@ void Adalight::processData()
 	unsigned long currentTime = millis();
 	unsigned long deltaTime = currentTime - statistics.getStartTime();
 
-	updateAdalightStatistics(currentTime, deltaTime, base.queueCurrent != base.queueEnd);
+	updateAdalightStatistics(currentTime, deltaTime, controller.queueCurrent != controller.queueEnd);
 
 	if (statistics.getStartTime() + 5000 < millis())
 	{
 		frameState.setState(AwaProtocol::HEADER_A);
 	}
 
-	if (base.hasLateFrameToRender())
-		base.renderLeds(false);
-
-	while (base.queueCurrent != base.queueEnd)
+	if (controller.hasLateFrameToRender())
+    {
+        if(controller.canRender(false)) {
+            statistics.increaseShow();
+            controller.renderLeds();
+        }
+    }
+        
+	while (controller.queueCurrent != controller.queueEnd)
 	{
-		byte input = base.buffer[base.queueCurrent++];
+		byte input = controller.buffer[controller.queueCurrent++];
 
-		if (base.queueCurrent >= MAX_BUFFER)
+		if (controller.queueCurrent >= MAX_BUFFER)
 		{
-			base.queueCurrent = 0;
+			controller.queueCurrent = 0;
 			yield();
 		}
 
@@ -132,6 +135,7 @@ void Adalight::processData()
 		case AwaProtocol::HEADER_HI:
 			statistics.increaseTotal();
 			frameState.init(input);
+            controller.dropLateFrame();
 			frameState.setState(AwaProtocol::HEADER_LO);
 			break;
 
@@ -148,14 +152,17 @@ void Adalight::processData()
 					frameState.setState(AwaProtocol::HEADER_A);
 				else
 				{
-					if (ledSize != base.getLedsNumber())
-						base.initLedStrip(ledSize);
+					if (ledSize != controller.getLedsNumber())
+						controller.initLedStrip(ledSize);
 					frameState.setState(AwaProtocol::RED);
 				}
 			}
 			else if (frameState.getCount() == 0x2aa2 && (input == 0x15 || input == 0x35))
 			{
 				statistics.print(currentTime, processDataHandle, processSerialHandle);
+                #if defined(NEOPIXEL_RGBW)
+                    calibration.print();
+                #endif
 
 				if (input == 0x15)
 					Serial.println(HELLO_MESSAGE);
@@ -185,11 +192,7 @@ void Adalight::processData()
 			frameState.color.B = input;
 			frameState.addFletcher(input);
 
-#if defined(NEOPIXEL_RGBW)
-			frameState.rgb2rgbw();
-#endif
-
-			if (base.setStripPixel(frameState.getCurrentLedIndex(), frameState.color))
+			if (controller.setStripPixel(frameState.getCurrentLedIndex(), frameState.color))
 			{
 				frameState.setState(AwaProtocol::RED);
 			}
@@ -245,13 +248,16 @@ void Adalight::processData()
 			if (input == frameState.getFletcherExt())
 			{
 				statistics.increaseGood();
-				base.renderLeds(true);
+
+                if(controller.canRender(true)) {
+                    statistics.increaseShow();
+				    controller.renderLeds();
+                }
+                
 
 #if defined(NEOPIXEL_RGBW)
 				if (frameState.isProtocolVersion2())
-				{
-					frameState.updateIncomingCalibration();
-				}
+		            calibration.setParamsAndPrepare(frameState.calibration.gain, frameState.calibration.red, frameState.calibration.green, frameState.calibration.blue);
 #endif
 
 				currentTime = millis();
@@ -269,7 +275,7 @@ void Adalight::processData()
 void Adalight::setupMultiCore()
 {
 	xTaskCreatePinnedToCore(
-		Adalight::processDataTaskStatic,
+		processDataTaskStatic,
 		"ProcessDataTask",
 		4096,
 		this,
@@ -278,7 +284,7 @@ void Adalight::setupMultiCore()
 		0);
 
 	xTaskCreatePinnedToCore(
-		Adalight::processSerialTaskStatic,
+		processSerialTaskStatic,
 		"ProcessSerialTask",
 		4096,
 		this,

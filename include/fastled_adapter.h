@@ -10,6 +10,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "led_driver.h"
 
 #define HYPERSERIAL_USE_FASTLED 1
 
@@ -19,59 +20,28 @@
 
 #if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
 	#define LED_DRIVER FastLedClocklessStrip<HS_DATA_PIN, GRB>
-#endif
-
-#ifdef SPILED_APA102
+#elif defined(SPILED_APA102)
 	#define LED_DRIVER FastLedApa102Strip<HS_DATA_PIN, HS_CLOCK_PIN, BGR>
-#elif SPILED_WS2801
+#elif defined(SPILED_WS2801)
 	#define LED_DRIVER FastLedWs2801Strip<HS_DATA_PIN, HS_CLOCK_PIN, RGB>
 #endif
 
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-
-	#ifdef NEOPIXEL_RGBW
+	#if defined(NEOPIXEL_RGBW)
 		#define LED_DRIVER2 FastLedClocklessStrip<HS_SECOND_SEGMENT_DATA_PIN, GRB>
-	#elif NEOPIXEL_RGB
+	#elif defined(NEOPIXEL_RGB)
 		#define LED_DRIVER2 FastLedClocklessStrip<HS_SECOND_SEGMENT_DATA_PIN, GRB>
-	#elif SPILED_APA102
+	#elif defined(SPILED_APA102)
 		#define LED_DRIVER2 FastLedApa102Strip<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, BGR>
-	#elif SPILED_WS2801
+	#elif defined(SPILED_WS2801)
 		#define LED_DRIVER2 FastLedWs2801Strip<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, RGB>
 	#endif
 #endif
 
-struct RgbColor
-{
-	uint8_t R;
-	uint8_t G;
-	uint8_t B;
-};
-
-struct RgbwColor
-{
-	uint8_t R;
-	uint8_t G;
-	uint8_t B;
-	uint8_t W;
-};
-
-#if !defined(HYPERSERIAL_TESTING)
-
-class IFastLedStrip
-{
-	public:
-		virtual ~IFastLedStrip() = default;
-		virtual bool CanShow() = 0;
-		virtual void Show(bool safe = true) = 0;
-		virtual void Begin() = 0;
-		virtual void Begin(int, int, int, int) = 0;
-		virtual void SetPixelColor(uint16_t indexPixel, RgbColor color) = 0;
-		virtual void SetPixelColor(uint16_t indexPixel, RgbwColor color) = 0;
-};
-
 template<typename TDerived>
-class FastLedStripBase : public IFastLedStrip
+#if !defined(HYPERSERIAL_TESTING)
+class FastLedStripBase : public ILedDriver
 {
 	protected:
 		int ledCount;
@@ -179,5 +149,4 @@ class FastLedWs2801Strip : public FastLedStripBase<FastLedWs2801Strip<DATA_GPIO,
 			FastLED.addLeds<WS2801, DATA_GPIO, CLOCK_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount);
 		}
 };
-
 #endif

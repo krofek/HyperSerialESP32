@@ -59,21 +59,3 @@ class Adalight {
 };
 
 extern Adalight adalight;
-
-inline bool serialTaskHandler()
-{
-	return adalight.serialTaskHandler();
-}
-
-inline void processData()
-{
-	adalight.processData();
-}
-
-#if defined(HYPERSERIAL_TESTING)
-	#include "../src/calibration.cpp"
-	#include "../src/statistics.cpp"
-	#include "../src/led_controller.cpp"
-	#include "../src/framestate.cpp"
-	#include "../src/adalight.cpp"
-#endif
