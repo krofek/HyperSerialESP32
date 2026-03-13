@@ -25,8 +25,7 @@
 *  SOFTWARE.
  */
 
-#ifndef LED_CONTROLLER_H
-#define LED_CONTROLLER_H
+#pragma once
 
 #include "freertos/semphr.h"
 #include "calibration.h"

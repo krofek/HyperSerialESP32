@@ -25,8 +25,7 @@
 *  SOFTWARE.
  */
 
-#ifndef ADALIGHT_H
-#define ADALIGHT_H
+#pragma once
 
 
 #include <Arduino.h>
@@ -41,6 +40,18 @@ class Adalight {
 		TaskHandle_t processSerialHandle = nullptr;
 		// semaphore to synchronize them
 		xSemaphoreHandle i2sXSemaphore;
+
+		static void processDataTaskStatic(void * parameters)
+		{
+			Adalight *self = static_cast<Adalight*>(parameters);
+			self->processDataTask(parameters);
+		}
+
+		static void processSerialTaskStatic(void * parameters)
+		{
+			Adalight *self = static_cast<Adalight*>(parameters);
+			self->processSerialTask(parameters);
+		}
 
 		/**
 		 * @brief separete thread for handling incoming data using cyclic buffer
@@ -315,10 +326,10 @@ class Adalight {
 			}
 		}
 
-		void handleMultiCore()
+		void setupMultiCore()
 		{
 			xTaskCreatePinnedToCore(
-				[](void * parameters) { processDataTask(parameters); },
+				Adalight::processDataTaskStatic,
 				"ProcessDataTask",
 				4096,
 				this,
@@ -327,7 +338,7 @@ class Adalight {
 				0);
 
 			xTaskCreatePinnedToCore(
-				[](void * parameters) { processSerialTask(parameters); },
+				Adalight::processSerialTaskStatic,
 				"ProcessSerialTask",
 				4096,
 				this,
@@ -336,20 +347,3 @@ class Adalight {
 				1);
 		}
 };
-
-/**
- * @brief separete thread on core 1 for handling serial communication using cyclic buffer
- *
- */
-
-
-
-
-
-/**
- * @brief process received data on core 0
- *
- */
-
-
-#endif

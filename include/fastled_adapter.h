@@ -7,8 +7,7 @@
 *  https://github.com/awawa-dev/HyperSerialESP32
 */
 
-#ifndef FASTLED_ADAPTER_H
-#define FASTLED_ADAPTER_H
+#pragma once
 
 #include <stdint.h>
 
@@ -180,7 +179,5 @@ class FastLedWs2801Strip : public FastLedStripBase<FastLedWs2801Strip<DATA_GPIO,
 			FastLED.addLeds<WS2801, DATA_GPIO, CLOCK_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount);
 		}
 };
-
-#endif
 
 #endif

@@ -25,8 +25,7 @@
 *  SOFTWARE.
  */
 
-#ifndef FRAMESTATE_H
-#define FRAMESTATE_H
+#pragma once
 
 /**
  * @brief my AWA frame protocol definition
@@ -257,5 +256,3 @@ class
 		} calibration;
 
 } frameState;
-
-#endif

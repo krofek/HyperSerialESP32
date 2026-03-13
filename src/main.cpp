@@ -117,7 +117,7 @@ void setup()
 	#endif
 
 #ifdef HS_MULTICORE
-		adalight.handleMultiCore();
+		adalight.setupMultiCore();
 #endif
 }
 

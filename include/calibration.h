@@ -25,6 +25,8 @@
 *  SOFTWARE.
  */
 
+#pragma once
+
 #include "fastled_adapter.h"
 
 #ifdef NEOPIXEL_RGBW
@@ -34,8 +36,7 @@
 #endif
 
 
-#if !defined(CALIBRATION_H) && (defined(NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING))
-#define CALIBRATION_H
+#if defined(NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
 
 #include <stdint.h>
 #include <algorithm>

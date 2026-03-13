@@ -25,8 +25,7 @@
 *  SOFTWARE.
  */
 
-#ifndef POWERCONTROL_H
-#define POWERCONTROL_H
+#pragma once
 
 #if LED_POWER_INVERT
 	#define SET_RELAY_HIGH() powerOff()

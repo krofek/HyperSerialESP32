@@ -25,8 +25,7 @@
 *  SOFTWARE.
  */
 
-#ifndef STATISTICS_H
-#define STATISTICS_H
+#pragma once
 
 // statistics (stats sent only when there is no communication)
 class
@@ -162,5 +161,3 @@ class
 		}
 
 } statistics;
-
-#endif
