@@ -29,7 +29,7 @@
 #define HYPERSERIAL_TESTING
 
 #include <Arduino.h>
-#include <NeoPixelBus.h>
+#include "fastled_adapter.h"
 #include <unity.h>
 #include "calibration.h"
 
@@ -360,7 +360,7 @@ class ProtocolTester {
 
 #define LED_DRIVER ProtocolTester
 #define LED_DRIVER2 ProtocolTester
-#include "main.h"
+#include "adalight.h"
 
 
 

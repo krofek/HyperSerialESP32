@@ -1,6 +1,6 @@
 # HyperSerialESP32
 
-Exposes a high-speed USB serial port at 2Mb baud for driving LED strips using the NeoPixelBus library. It’s intended to replace slow Arduino-based solutions (a 3.3V to 5V level shifter may be required). **A data-integrity check (Fletcher's checksum) is included in the new 'Awa' protocol for HyperHDR, eliminating random flashing caused by serial transmission errors.** This option must be enabled in HyperHDR for the system to work correctly, as shown in the configuration screenshot below.
+Exposes a high-speed USB serial port at 2Mb baud for driving LED strips using the FastLED library. It’s intended to replace slow Arduino-based solutions (a 3.3V to 5V level shifter may be required). **A data-integrity check (Fletcher's checksum) is included in the new 'Awa' protocol for HyperHDR, eliminating random flashing caused by serial transmission errors.** This option must be enabled in HyperHDR for the system to work correctly, as shown in the configuration screenshot below.
 
 **Make sure that the serial chip on your ESP32 can handle 2Mb baud: for example, the CP2102 cannot, as its maximum speed is 1Mb. You can compile a version for that lower speed, but that defeats the purpose. The inexpensive CH340G handles 2Mb without issues, and the CH9102x should also work — even at 4Mb.**
 
@@ -62,6 +62,8 @@ To disable the first LED used as a sacrificial level shifter, use [this](https:/
 
 For the RGBW firmware the white channel is automatically calculated and R,G,B channels are corrected.  
 
+FastLED RGBW mode can be adjusted at build time with `-DHYPERSERIAL_FASTLED_RGBW_EMULATION=1` (default) or `=0` (disable W blending).
+
 ---
 
 # Pinout
@@ -93,7 +95,7 @@ Enabling `White channel calibration` is optional, if you want to fine tune the w
 # Compiling
   
 Currently we use PlatformIO to compile the project. Install [Visual Studio Code](https://code.visualstudio.com/) and add [PlatformIO plugin](https://platformio.org/).
-This environment will take care of everything and compile the firmware for you. Low-level LED strip support is provided by my highly optimizated (pre-fill I2S DMA modes, turbo I2S parallel mode for up to 2 segments etc) version of Neopixelbus library: [link](https://github.com/awawa-dev/NeoPixelBus).
+This environment will take care of everything and compile the firmware for you. Low-level LED strip support is provided by the FastLED library: [link](https://github.com/FastLED/FastLED).
 
 But there is also an alternative and an easier way. Just fork the project and enable its Github Action. Use the online editor to make changes to the ```platformio.ini``` file, for example change default pin-outs/speed or enable multi-segments support, and save it. Github Action will compile new firmware automatically in the Artifacts archive. It has never been so easy!
 
@@ -103,7 +105,7 @@ Tutorial: https://github.com/awawa-dev/HyperSerialESP32/wiki
 
 # Multi-Segment Wiring
 
-Using parallel multi-segment allows you to double your Neopixel (e.g. sk6812 RGBW) LED strip refresh rate by dividing it into two smaller equal parts. Both smaller segments are perfectly in sync so you don't need to worry about it. Proposed example of building a multisegment:
+Using multi-segment wiring allows you to split your addressable LED strip (for example SK6812 RGBW) into two smaller parts while keeping one logical strip in HyperHDR. Proposed example of building a multisegment:
 - Divide a long or dense strip of LEDs into 2 smaller equal parts. So `SECOND_SEGMENT_START_INDEX` in the HyperSerialESP32 firmware is the total number of LEDs divided by 2.
 - Build your first segment traditional way e.g. clockwise, so it starts somewhere in middle of the bottom of frame/TV and ends in the middle of the top of frame/TV
 - Start the second segment in the opposite direction to the first one e.g. counterclockwise (`SECOND_SEGMENT_REVERSED` option in the HyperSerialESP32 firmware configuration must be enabled). So it starts somewhere in the middle of the bottom of the frame/TV and ends in the middle of the top of the TV/frame.  Both segments could be optionally connected if possible at the top but only 5v and ground ( NOT the data line).
@@ -111,18 +113,18 @@ Using parallel multi-segment allows you to double your Neopixel (e.g. sk6812 RGB
 - Configuration in HyperHDR does not change! It's should be configured as one, single continues segment. All is done in HyperSerialESP32 firmware transparently and does not affect LED strip configuration in HyperHDR.
 
 You also must configure data pin (and clock pin for SPI LEDs) in the `platformio.ini`. Review the comments at the top of the file:
-* `SECOND_SEGMENT_DATA_PIN` - These is data pin for your second strip
-* `SECOND_SEGMENT_CLOCK_PIN` - These is clock pin for your second strip (SPI LEDs only, not for sk6812/ws2812b etc)
+* `HS_SECOND_SEGMENT_DATA_PIN` - These is data pin for your second strip
+* `HS_SECOND_SEGMENT_CLOCK_PIN` - These is clock pin for your second strip (SPI LEDs only, not for sk6812/ws2812b etc)
 
 You add these to your board's config. Be sure to put `-D` in front of each setting. 
 
 Examples of final build_flags for 288 LEDs divided into 2 equal segments in the `platformio.ini`:
 ```
 [env:SK6812_RGBW_COLD]
-build_flags = -DNEOPIXEL_RGBW -DCOLD_WHITE -DDATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DSECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
+build_flags = -DNEOPIXEL_RGBW -DCOLD_WHITE -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
 ...
 [env:WS281x_RGB]
-build_flags = -DNEOPIXEL_RGB -DDATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DSECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
+build_flags = -DNEOPIXEL_RGB -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
 ...
 ```
 Implementation example:
@@ -146,7 +148,7 @@ Note: For static color configuration this mechanism will turn off the LEDs. To c
 
 ESP32 MH-ET LIVE mini is capable of 4Mb serial port speed and ESP32-S2 lolin mini is capable of 5Mb. But to give equal chances for a single-segment mode all models were tested using the default speed of 2Mb which should saturate Neopixel data line. Parallel multi-segment mode uses the highest option available because communication performance is critical here.
 
-**Parallel multi-segments can double your large sk6812/ws2812b setup refresh rate for free. All you need is to properly project & construct the LED strip and use HyperSerialESP32 v9. Parallel communication provides perfect synchronization between Neopixel segments.**
+**Multi-segments can improve large sk6812/ws2812b setup responsiveness. All you need is to properly project and construct the LED strip and use HyperSerialESP32 v9.**
 
 ## ESP32 / ESP32-S2 multi segments
 

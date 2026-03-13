@@ -25,6 +25,8 @@
 *  SOFTWARE.
  */
 
+#include "fastled_adapter.h"
+
 #ifdef NEOPIXEL_RGBW
 	typedef RgbwColor ColorDefinition;
 #else

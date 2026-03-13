@@ -29,7 +29,7 @@
 #define HYPERSERIAL_TESTING
 
 #include <Arduino.h>
-#include <NeoPixelBus.h>
+#include "fastled_adapter.h"
 #include <unity.h>
 #include "calibration.h"
 
@@ -45,8 +45,8 @@ uint8_t _ledBuffer[TEST_LEDS_NUMBER * 3 + 6 + 8];
 #define LED_DRIVER ProtocolTester
 #define LED_DRIVER2 ProtocolTester
 #define SECOND_SEGMENT_START_INDEX 513
-#define SECOND_SEGMENT_CLOCK_PIN   100
-#define SECOND_SEGMENT_DATA_PIN    101
+#define HS_SECOND_SEGMENT_CLOCK_PIN   100
+#define HS_SECOND_SEGMENT_DATA_PIN    101
 #define SECOND_SEGMENT_REVERSED
 
 /**
@@ -176,7 +176,7 @@ class ProtocolTester {
 	public:
 		ProtocolTester(int _count, int _pin) : ProtocolTester(_count)
 		{
-			if (_pin == SECOND_SEGMENT_DATA_PIN)
+			if (_pin == HS_SECOND_SEGMENT_DATA_PIN)
 				first = false;
 		}
 
@@ -206,7 +206,7 @@ class ProtocolTester {
 
 		void Begin(int _pin1, int _pin2, int _pin3, int _pin4)
 		{
-			if (_pin1 == SECOND_SEGMENT_CLOCK_PIN)
+			if (_pin1 == HS_SECOND_SEGMENT_CLOCK_PIN)
 				first = false;
 		}
 
@@ -273,7 +273,7 @@ class ProtocolTester {
 		#endif
 };
 
-#include "main.h"
+#include "adalight.h"
 
 
 
