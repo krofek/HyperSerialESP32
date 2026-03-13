@@ -47,8 +47,6 @@
 #include "adalight.h"
 #include <freertos/semphr.h>
 
-Adalight adalight;
-
 #if defined(CONFIG_IDF_TARGET_ESP32C3)
 	#define HS_MULTICORE 0
 #else

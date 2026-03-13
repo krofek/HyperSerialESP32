@@ -28,6 +28,7 @@
 #pragma once
 
 #include "fastled_adapter.h"
+#include <stdint.h>
 
 #ifdef NEOPIXEL_RGBW
 	typedef RgbwColor ColorDefinition;
@@ -38,18 +39,15 @@
 
 #if defined(NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
 
-#include <stdint.h>
-#include <algorithm>
-
-#define ROUND_DIVIDE(numer, denom) (((numer) + (denom) / 2) / (denom))
-
-struct
+struct ChannelCorrection
 {
 	uint8_t white[256];
 	uint8_t red[256];
 	uint8_t green[256];
 	uint8_t blue[256];
-} channelCorrection;
+};
+
+extern ChannelCorrection channelCorrection;
 
 class CalibrationConfig
 {
@@ -59,42 +57,16 @@ class CalibrationConfig
 	uint8_t green = 0xA0;
 	uint8_t blue = 0xA0;
 
-	/**
-	 * @brief Build the LUT table using provided parameters
-	 *
-	 */
-	void prepareCalibration()
-	{
-		// prepare LUT calibration table, cold white is much better than "neutral" white
-		for (uint32_t i = 0; i < 256; i++)
-		{
-			// color calibration
-			uint32_t _gain = gain * i;   // adjust gain
-			uint32_t _red = red * i;     // adjust red
-			uint32_t _green = green * i; // adjust green
-			uint32_t _blue = blue * i;   // adjust blue
-
-			channelCorrection.white[i] = (uint8_t)std::min(ROUND_DIVIDE(_gain, 0xFF), (uint32_t)0xFF);
-			channelCorrection.red[i]   = (uint8_t)std::min(ROUND_DIVIDE(_red,  0xFF), (uint32_t)0xFF);
-			channelCorrection.green[i] = (uint8_t)std::min(ROUND_DIVIDE(_green,0xFF), (uint32_t)0xFF);
-			channelCorrection.blue[i]  = (uint8_t)std::min(ROUND_DIVIDE(_blue, 0xFF), (uint32_t)0xFF);
-		}
-	}
+	void prepareCalibration();
 
 	public:
-		CalibrationConfig()
-		{
-			prepareCalibration();
-		}
+		CalibrationConfig();
 
 		/**
 		 * @brief Compare base calibration settings
 		 *
 		 */
-		bool compareCalibrationSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue)
-		{
-			return _gain == gain && _red == red && _green == green && _blue == blue;
-		}
+		bool compareCalibrationSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
 		/**
 		 * @brief Set the parameters that define RGB to RGBW transformation
@@ -104,30 +76,15 @@ class CalibrationConfig
 		 * @param _green
 		 * @param _blue
 		 */
-		void setParamsAndPrepareCalibration(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue)
-		{
-			if (gain != _gain || red != _red || green != _green || blue != _blue)
-			{
-				gain = _gain;
-				red = _red;
-				green = _green;
-				blue = _blue;
-				prepareCalibration();
-			}
-		}
+		void setParamsAndPrepareCalibration(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
 		/**
 		 * @brief print RGBW calibration parameters when no data is received
 		 *
 		 */
-		void printCalibration()
-		{
-			#ifdef SerialPort
-				char output[128];
-				snprintf(output, sizeof(output),"RGBW => Gain: %i/255, red: %i, green: %i, blue: %i\r\n", gain, red, green, blue);
-				SerialPort.print(output);
-			#endif
-		}
-} calibrationConfig;
+		void printCalibration();
+};
+
+extern CalibrationConfig calibrationConfig;
 #endif
 

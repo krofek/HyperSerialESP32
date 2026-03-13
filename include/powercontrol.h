@@ -27,6 +27,10 @@
 
 #pragma once
 
+#include <Arduino.h>
+
+#if defined(LED_POWER_PIN)
+
 #if LED_POWER_INVERT
 	#define SET_RELAY_HIGH() powerOff()
 	#define SET_RELAY_LOW() powerOn()
@@ -39,7 +43,7 @@
  * @brief Contains logic for turning on and off the power to leds using external relay
  *
  */
-class
+class PowerControl
 {
 	// timeout after which the leds will be turned off if no reset is applied
 	const unsigned long POWER_OFF_PERIOD = 5 * 1000;
@@ -51,45 +55,16 @@ class
 	volatile int currentPowerPinMode = LOW;
 
 	public:
-		void init()
-		{
-			pinMode(LED_POWER_PIN, OUTPUT);
-			lastPowerOffResetTimestamp = millis();
-			powerOff();
-		}
+		void init();
 
-		inline void SET_RELAY_HIGH()
-		{
-			if (currentPowerPinMode != HIGH)
-			{
-				currentPowerPinMode = HIGH;
-				digitalWrite(LED_POWER_PIN, currentPowerPinMode);
-			}
-		}
+		void powerOn();
 
-		inline void SET_RELAY_LOW()
-		{
-			if (currentPowerPinMode != LOW)
-			{
-				currentPowerPinMode = LOW;
-				digitalWrite(LED_POWER_PIN, currentPowerPinMode);
-			}
-		}
+		void powerOff();
 
-		void update(bool hasData)
-		{
-			if (hasData)
-			{
-				powerOn();
-				lastPowerOffResetTimestamp = millis();
-			}
-			else if (millis() - lastPowerOffResetTimestamp > POWER_OFF_PERIOD)
-			{
-				powerOff();
-			}
-		}
+		void update(bool hasData);
 
-} powerControl;
+};
 
+extern PowerControl powerControl;
 
 #endif

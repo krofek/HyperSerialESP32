@@ -27,8 +27,10 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 // statistics (stats sent only when there is no communication)
-class
+class Statistics
 {
 	unsigned long startTime = 0;
 	uint16_t goodFrames = 0;
@@ -44,67 +46,39 @@ class
 		 *
 		 * @return unsigned long
 		 */
-		inline unsigned long getStartTime()
-		{
-			return startTime;
-		}
+		unsigned long getStartTime();
 
 		/**
 		 * @brief Detected new frame
 		 *
 		 */
-		inline void increaseTotal()
-		{
-			totalFrames++;
-		}
+		void increaseTotal();
 
 		/**
 		 * @brief The frame is received and shown
 		 *
 		 */
-		inline void increaseShow()
-		{
-			showFrames++;
-		}
+		void increaseShow();
 
 		/**
 		 * @brief The frame is received correctly (not yet displayed)
 		 *
 		 */
-		inline void increaseGood()
-		{
-			goodFrames++;
-		}
+		void increaseGood();
 
 		/**
 		 * @brief Get number of correctly received frames
 		 *
 		 * @return uint16_t
 		 */
-		inline uint16_t getGoodFrames()
-		{
-			return goodFrames;
-		}
+		uint16_t getGoodFrames();
 
 		/**
 		 * @brief Period restart, save current statistics ans send them later if there is no incoming communication
 		 *
 		 * @param currentTime
 		 */
-		void update(unsigned long currentTime)
-		{
-			if (totalFrames > 0)
-			{
-				finalShowFrames = showFrames;
-				finalGoodFrames = std::min(goodFrames, totalFrames);
-				finalTotalFrames = totalFrames;
-			}
-
-			startTime = currentTime;
-			goodFrames = 0;
-			totalFrames = 0;
-			showFrames = 0;
-		}
+		void update(unsigned long currentTime);
 
 		/**
 		 * @brief Print last saved statistics to the serial port
@@ -112,52 +86,16 @@ class
 		 * @param curTime
 		 * @param taskHandle
 		 */
-		void print(unsigned long curTime, TaskHandle_t taskHandle1, TaskHandle_t taskHandle2)
-		{
-			char output[128];
-
-			startTime = curTime;
-			goodFrames = 0;
-			totalFrames = 0;
-			showFrames = 0;
-
-			snprintf(output, sizeof(output), "HyperHDR frames: %u (FPS), receiv.: %u, good: %u, incompl.: %u, mem1: %i, mem2: %i, heap: %i\r\n",
-						finalShowFrames, finalTotalFrames,finalGoodFrames,(finalTotalFrames - finalGoodFrames),
-						(taskHandle1 != nullptr) ? uxTaskGetStackHighWaterMark(taskHandle1) : 0,
-						(taskHandle2 != nullptr) ? uxTaskGetStackHighWaterMark(taskHandle2) : 0,
-						ESP.getFreeHeap());
-			SerialPort.print(output);
-
-			#if defined(NEOPIXEL_RGBW)
-				calibrationConfig.printCalibration();
-			#endif
-		}
+		void print(unsigned long curTime, TaskHandle_t taskHandle1, TaskHandle_t taskHandle2);
 
 		/**
 		 * @brief Reset statistics
 		 *
 		 */
-		void reset(unsigned long currentTime)
-		{
-			startTime = currentTime;
+		void reset(unsigned long currentTime);
 
-			finalShowFrames = 0;
-			finalGoodFrames = 0;
-			finalTotalFrames = 0;
+		void lightReset(unsigned long curTime, bool hasData);
 
-			goodFrames = 0;
-			totalFrames = 0;
-			showFrames = 0;
-		}
+};
 
-		void lightReset(unsigned long curTime, bool hasData)
-		{
-			if (hasData)
-				startTime = curTime;
-
-			goodFrames = 0;
-			totalFrames = 0;
-			showFrames = 0;
-		}
-
-} statistics;
+extern Statistics statistics;

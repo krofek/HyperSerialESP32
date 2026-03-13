@@ -27,6 +27,10 @@
 
 #pragma once
 
+#include <Arduino.h>
+#include "calibration.h"
+#include "led_controller.h"
+
 /**
  * @brief my AWA frame protocol definition
  *
@@ -55,7 +59,7 @@ enum class AwaProtocol
  * @brief Contains current state of the incoming frame
  *
  */
-class
+class FrameState
 {
 	volatile AwaProtocol state = AwaProtocol::HEADER_A;
 	bool protocolVersion2 = false;
@@ -75,87 +79,56 @@ class
 		 *
 		 * @param input
 		 */
-		inline void init(byte input)
-		{
-			currentLed = 0;
-			count = input * 0x100;
-			CRC = input;
-			fletcher1 = 0;
-			fletcher2 = 0;
-			fletcherExt = 0;
-			position = 0;
-			base.dropLateFrame();
-		}
+		void init(byte input);
 
 		/**
 		 * @brief get computed CRC
 		 *
 		 * @return uint8_t
 		 */
-		inline uint8_t getCRC()
-		{
-			return CRC;
-		}
+		uint8_t getCRC();
 
 		/**
 		 * @brief Get the color count reported by the frame
 		 *
 		 * @return uint16_t
 		 */
-		inline uint16_t getCount()
-		{
-			return count;
-		}
+		uint16_t getCount();
 
 		/**
 		 * @brief Get the Fletcher1 total sum
 		 *
 		 * @return uint16_t
 		 */
-		inline uint16_t getFletcher1()
-		{
-			return fletcher1;
-		}
+		uint16_t getFletcher1();
 
 		/**
 		 * @brief Get the Fletcher2 total sum
 		 *
 		 * @return uint16_t
 		 */
-		inline uint16_t getFletcher2()
-		{
-			return fletcher2;
-		}
+		uint16_t getFletcher2();
 
 		/**
 		 * @brief Get the FletcherExt total sum
 		 *
 		 * @return uint16_t
 		 */
-		inline uint16_t getFletcherExt()
-		{
-			return (fletcherExt != 0x41) ? fletcherExt : 0xaa;
-		}
+		uint16_t getFletcherExt();
 
 		/**
 		 * @brief Get and increase the current Led index
 		 *
 		 * @return uint16_t
 		 */
-		inline uint16_t getCurrentLedIndex()
-		{
-			return currentLed++;
-		}
+		uint16_t getCurrentLedIndex();
 
 		/**
 		 * @brief Set if frame protocol version 2 (contains calibration data)
 		 *
 		 * @param newVer
 		 */
-		inline void setProtocolVersion2(bool newVer)
-		{
-			protocolVersion2 = newVer;
-		}
+		void setProtocolVersion2(bool newVer);
 
 		/**
 		 * @brief Verify if frame protocol version 2 (contains calibration data)
@@ -163,67 +136,41 @@ class
 		 * @return true
 		 * @return false
 		 */
-		inline bool isProtocolVersion2()
-		{
-			return protocolVersion2;
-		}
+		bool isProtocolVersion2();
 
 		/**
 		 * @brief  Set new AWA frame state
 		 *
 		 * @param newState
 		 */
-		inline void setState(AwaProtocol newState)
-		{
-			state = newState;
-		}
+		void setState(AwaProtocol newState);
 
 		/**
 		 * @brief Get current AWA frame state
 		 *
 		 * @return AwaProtocol
 		 */
-		inline AwaProtocol getState()
-		{
-			return state;
-		}
+		AwaProtocol getState();
 
 		/**
 		 * @brief Update CRC based on current and previuos input
 		 *
 		 * @param input
 		 */
-		inline void computeCRC(byte input)
-		{
-			count += input;
-			CRC = CRC ^ input ^ 0x55;
-		}
+		void computeCRC(byte input);
 
 		/**
 		 * @brief Update Fletcher checksumn for incoming input
 		 *
 		 * @param input
 		 */
-		inline void addFletcher(byte input)
-		{
-			fletcher1 = (fletcher1 + (uint16_t)input) % 255;
-			fletcher2 = (fletcher2 + fletcher1) % 255;
-			fletcherExt = (fletcherExt + (input ^ (position++))) % 255;
-		}
+		void addFletcher(byte input);
 
 		/**
 		 * @brief Check if the calibration data was updated and calculate new one
 		 *
 		 */
-		inline void updateIncomingCalibration()
-		{
-			#ifdef NEOPIXEL_RGBW
-				if (protocolVersion2)
-				{
-					calibrationConfig.setParamsAndPrepareCalibration(calibration.gain, calibration.red, calibration.green, calibration.blue);
-				}
-			#endif
-		}
+		void updateIncomingCalibration();
 
 
 		#ifdef NEOPIXEL_RGBW
@@ -231,16 +178,7 @@ class
 			* @brief Compute && correct the white channel
 			*
 			*/
-			inline void rgb2rgbw()
-			{
-				color.W = min(channelCorrection.red[color.R],
-								min(channelCorrection.green[color.G],
-									channelCorrection.blue[color.B]));
-				color.R -= channelCorrection.red[color.W];
-				color.G -= channelCorrection.green[color.W];
-				color.B -= channelCorrection.blue[color.W];
-				color.W = channelCorrection.white[color.W];
-			}
+			void rgb2rgbw();
 		#endif
 
 		/**
@@ -255,4 +193,6 @@ class
 			uint8_t blue = 0;
 		} calibration;
 
-} frameState;
+};
+
+extern FrameState frameState;

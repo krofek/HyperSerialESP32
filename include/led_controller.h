@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include "freertos/semphr.h"
 #include "calibration.h"
 #include "statistics.h"
 #include "fastled_adapter.h"
@@ -58,68 +57,14 @@ class Base
 		// queue end position
 		volatile int queueEnd = 0;
 
-		inline int getLedsNumber()
-		{
-			return ledsNumber;
-		}
+		int getLedsNumber();
 
-		inline LED_DRIVER* getLedStrip1()
-		{
-			return ledStrip1;
-		}
+		LED_DRIVER* getLedStrip1();
 #if defined(SECOND_SEGMENT_START_INDEX)
-		inline LED_DRIVER2* getLedStrip2()
-		{
-			return ledStrip2;
-		}
+		LED_DRIVER2* getLedStrip2();
 #endif
 
-		void initLedStrip(int count)
-		{
-			if (ledStrip1 != nullptr)
-			{
-				delete ledStrip1;
-				ledStrip1 = nullptr;
-			}
-
-#if defined(SECOND_SEGMENT_START_INDEX)
-			if (ledStrip2 != nullptr)
-			{
-				delete ledStrip2;
-				ledStrip2 = nullptr;
-			}
-#endif
-
-			ledsNumber = count;
-
-			#if defined(SECOND_SEGMENT_START_INDEX)
-				if (ledsNumber > SECOND_SEGMENT_START_INDEX)
-				{
-					#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-						ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX, HS_DATA_PIN);
-						ledStrip1->Begin();
-						ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX, HS_SECOND_SEGMENT_DATA_PIN);
-						ledStrip2->Begin();
-					#else
-						ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX);
-						ledStrip1->Begin(HS_CLOCK_PIN, 12, HS_DATA_PIN, 15);
-						ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX);
-						ledStrip2->Begin(HS_SECOND_SEGMENT_CLOCK_PIN, 12, HS_SECOND_SEGMENT_DATA_PIN, 15);
-					#endif
-				}
-			#endif
-
-			if (ledStrip1 == nullptr)
-			{
-				#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-					ledStrip1 = new LED_DRIVER(ledsNumber, HS_DATA_PIN);
-					ledStrip1->Begin();
-				#else
-					ledStrip1 = new LED_DRIVER(ledsNumber);
-					ledStrip1->Begin(HS_CLOCK_PIN, 12, HS_DATA_PIN, 15);
-				#endif
-			}
-		}
+		void initLedStrip(int count);
 
 		/**
 		 * @brief Check if there is already prepared frame to display
@@ -127,75 +72,17 @@ class Base
 		 * @return true
 		 * @return false
 		 */
-		inline bool hasLateFrameToRender()
-		{
-			return readyToRender;
-		}
+		bool hasLateFrameToRender();
 
-		inline void dropLateFrame()
-		{
-			readyToRender = false;
-		}
+		void dropLateFrame();
 
 #if defined(SECOND_SEGMENT_START_INDEX)				
-		inline void renderLeds(bool newFrame)
-		{
-			if (newFrame)
-				readyToRender = true;
-
-		
-			if (readyToRender &&
-				(ledStrip1 != nullptr && ledStrip1->CanShow()) &&
-				!(ledStrip2 != nullptr && !ledStrip2->CanShow()))
-			{
-				statistics.increaseShow();
-				readyToRender = false;
-
-				// display segments
-				ledStrip1->Show(false);
-				#if !defined(HYPERSERIAL_USE_FASTLED) || defined(HYPERSERIAL_TESTING)
-					if (ledStrip2 != nullptr)
-						ledStrip2->Show(false);
-				#endif
-			}
-		}
+		void renderLeds(bool newFrame);
 #else
-		inline void renderLeds(bool newFrame)
-		{
-			if (newFrame)
-				readyToRender = true;
-
-			if (readyToRender && ledStrip1 != nullptr && ledStrip1->CanShow())
-			{
-				statistics.increaseShow();
-				readyToRender = false;
-				ledStrip1->Show(false);
-			}
-		}
+		void renderLeds(bool newFrame);
 #endif
 
-		inline bool setStripPixel(uint16_t pix, ColorDefinition &inputColor)
-		{
-			if (pix < ledsNumber)
-			{
-				#if defined(SECOND_SEGMENT_START_INDEX)
-					if (pix < SECOND_SEGMENT_START_INDEX)
-						ledStrip1->SetPixelColor(pix, inputColor);
-					else
-					{
-						#if defined(SECOND_SEGMENT_REVERSED)
-							ledStrip2->SetPixelColor(ledsNumber - pix - 1, inputColor);
-						#else
-							ledStrip2->SetPixelColor(pix - SECOND_SEGMENT_START_INDEX, inputColor);
-						#endif
-					}
-				#else
-					ledStrip1->SetPixelColor(pix, inputColor);
-				#endif
-			}
+		bool setStripPixel(uint16_t pix, ColorDefinition &inputColor);
+};
 
-			return (pix + 1 < ledsNumber);
-		}
-} base;
-
-#endif
+extern Base base;
