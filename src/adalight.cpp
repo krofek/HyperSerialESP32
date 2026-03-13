@@ -9,6 +9,8 @@
 #include "powercontrol.h"
 #endif
 
+Adalight adalight;
+
 void Adalight::processDataTaskStatic(void * parameters)
 {
 	Adalight *self = static_cast<Adalight*>(parameters);

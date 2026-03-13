@@ -2,6 +2,8 @@
 
 #include "led_controller.h"
 
+FrameState frameState;
+
 void FrameState::init(byte input)
 {
 	currentLed = 0;

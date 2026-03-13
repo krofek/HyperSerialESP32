@@ -40,7 +40,6 @@
 #endif
 
 template<typename TDerived>
-#if !defined(HYPERSERIAL_TESTING)
 class FastLedStripBase : public ILedDriver
 {
 	protected:
@@ -149,4 +148,3 @@ class FastLedWs2801Strip : public FastLedStripBase<FastLedWs2801Strip<DATA_GPIO,
 			FastLED.addLeds<WS2801, DATA_GPIO, CLOCK_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount);
 		}
 };
-#endif

@@ -2,6 +2,8 @@
 
 #include "statistics.h"
 
+LedController controller;
+
 int LedController::getLedsNumber()
 {
 	return ledsNumber;

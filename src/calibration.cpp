@@ -4,8 +4,7 @@
 
 #include <algorithm>
 
-ChannelCorrection channelCorrection;
-Calibration calibrationConfig;
+Calibration calibration;
 
 void Calibration::prepare()
 {

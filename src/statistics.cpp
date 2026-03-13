@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "calibration.h"
 
+Statistics statistics;
+
 unsigned long Statistics::getStartTime()
 {
 	return startTime;
