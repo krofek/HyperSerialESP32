@@ -1,5 +1,10 @@
 #include "adalight.h"
 
+#include "config.h"
+#include "statistics.h"
+#include "led_controller.h"
+#include "framestate.h"
+
 #if defined(LED_POWER_PIN)
 #include "powercontrol.h"
 #endif

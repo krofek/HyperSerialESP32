@@ -29,10 +29,6 @@
 
 
 #include <Arduino.h>
-#include "calibration.h"
-#include "statistics.h"
-#include "led_controller.h"
-#include "framestate.h"
 
 class Adalight {
 	public:
@@ -56,7 +52,6 @@ class Adalight {
 		bool serialTaskHandler();
 
 		void updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData);
-
 
 		void processData();
 

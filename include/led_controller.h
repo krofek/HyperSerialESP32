@@ -28,7 +28,6 @@
 #pragma once
 
 #include "calibration.h"
-#include "statistics.h"
 #include "fastled_adapter.h"
 #include "config.h"
 
