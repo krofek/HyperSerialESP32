@@ -1,6 +1,6 @@
 #include "calibration.h"
 
-#if defined(HS_NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
 
 Calibration calibration;
 

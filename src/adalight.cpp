@@ -143,7 +143,7 @@ void Adalight::processData()
             else if (frameState.getCount() == 0x2aa2 && (input == 0x15 || input == 0x35))
             {
                 statistics.print(currentTime, processDataHandle, processSerialHandle);
-#if defined(HS_NEOPIXEL_RGBW)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
                 calibration.print();
 #endif
 
@@ -175,7 +175,7 @@ void Adalight::processData()
             frameState.color.B = input;
             frameState.addFletcher(input);
 
-#ifdef HS_NEOPIXEL_RGBW
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
             calibration.rgb2rgbw(frameState.color);
 #endif
 
@@ -236,7 +236,7 @@ void Adalight::processData()
                     controller.renderLeds();
                 }
 
-#if defined(HS_NEOPIXEL_RGBW)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
                 calibration.prepare();
 #endif
 
@@ -254,7 +254,7 @@ void Adalight::processData()
 
 void Adalight::init()
 {
-#ifdef HS_NEOPIXEL_RGBW
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
 #ifdef HS_COLD_WHITE
     calibration.setParamsAndPrepare(0xFF, 0xA0, 0xA0, 0xA0);
 #else
@@ -270,20 +270,18 @@ void Adalight::init()
 #endif
 
 // Colorspace/Led type info
-#if defined(HS_NEOPIXEL_RGBW) || defined(HS_NEOPIXEL_RGB)
-#ifdef HS_NEOPIXEL_RGBW
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
 #ifdef HS_COLD_WHITE
     Serial.println("FastLED SK6812 cold GRBW. ");
 #else
     Serial.println("FastLED SK6812 neutral GRBW. ");
 #endif
     calibration.print();
-#else
+#elif HS_LED_TYPE == HS_NEOPIXEL_RGB
     Serial.println("FastLED ws281x type (GRB).");
-#endif
-#elif defined(SPILED_APA102)
+#elif HS_LED_TYPE == SPI_LED_APA102
     Serial.println("SPI APA102 compatible type (BGR).");
-#elif defined(SPILED_WS2801)
+#elif HS_LED_TYPE == SPI_LED_WS2801
     Serial.println("SPI WS2801 (RBG).");
 #endif
 

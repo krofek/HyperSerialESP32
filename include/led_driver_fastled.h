@@ -13,20 +13,20 @@
 #include <FastLED.h>
 #include <stdint.h>
 
-#if defined(HS_NEOPIXEL_RGBW) || defined(HS_NEOPIXEL_RGB)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW || HS_LED_TYPE == HS_NEOPIXEL_RGB
 #define LED_DRIVER ClocklessStripFastLed<HS_DATA_PIN, GRB>
-#elif defined(SPILED_APA102)
+#elif HS_LED_TYPE == SPI_LED_APA102
 #define LED_DRIVER Apa1002StripFastLed<HS_DATA_PIN, HS_CLOCK_PIN, BGR>
-#elif defined(SPILED_WS2801)
+#elif HS_LED_TYPE == SPI_LED_WS2801
 #define LED_DRIVER Ws2801StripFastLed<HS_DATA_PIN, HS_CLOCK_PIN, RGB>
 #endif
 
 #if defined(HS_SECOND_SEGMENT_START_INDEX)
-#if defined(HS_NEOPIXEL_RGBW) || defined(HS_NEOPIXEL_RGB)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW || HS_LED_TYPE == HS_NEOPIXEL_RGB
 #define LED_DRIVER2 ClocklessStripFastLed<HS_SECOND_SEGMENT_DATA_PIN, GRB>
-#elif defined(SPILED_APA102)
+#elif HS_LED_TYPE == SPI_LED_APA102
 #define LED_DRIVER2 Apa1002StripFastLed<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, BGR>
-#elif defined(SPILED_WS2801)
+#elif HS_LED_TYPE == SPI_LED_WS2801
 #define LED_DRIVER2 Ws2801StripFastLed<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, RGB>
 #endif
 #endif
@@ -83,7 +83,7 @@ class ClocklessStripFastLed : public LedDriverFastLed<ClocklessStripFastLed<DATA
 
     void beginImpl()
     {
-#if defined(HS_NEOPIXEL_RGBW)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
         FastLED.addLeds<SK6812, DATA_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount)
             .setRgbw(RgbwDefault());
 #else

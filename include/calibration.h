@@ -28,7 +28,7 @@ all
 
 #pragma once
 
-#if defined(HS_NEOPIXEL_RGBW)
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW
 
 #include <Arduino.h>
 
