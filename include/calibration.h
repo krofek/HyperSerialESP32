@@ -28,11 +28,12 @@ all
 
 #pragma once
 
+#if defined(NEOPIXEL_RGBW)
+
 #include "config.h"
 #include "fastled_adapter.h"
+#include <algorithm>
 #include <stdint.h>
-
-#if defined(NEOPIXEL_RGBW)
 
 struct ChannelCorrection
 {
@@ -61,6 +62,10 @@ class Calibration
      */
     bool compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
+    /**
+     * @brief Prepare calibration
+     *
+     */
     void prepare();
 
     /**
@@ -69,14 +74,42 @@ class Calibration
      */
     void print();
 
+    /**
+     * @brief Set gain value
+     *
+     * @param newGain
+     */
     void setGain(uint8_t newGain);
 
+    /**
+     * @brief Set red channel value
+     *
+     * @param newRed
+     */
     void setRed(uint8_t newRed);
 
+    /**
+     * @brief Set green channel value
+     *
+     * @param newGreen
+     */
     void setGreen(uint8_t newGreen);
 
+    /**
+     * @brief Set blue channel value
+     *
+     * @param newBlue
+     */
     void setBlue(uint8_t newBlue);
 
+    /**
+     * @brief Set all calibration parameters and prepare correction tables
+     *
+     * @param newGain
+     * @param newRed
+     * @param newGreen
+     * @param newBlue
+     */
     void setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t newGreen, uint8_t newBlue);
 };
 

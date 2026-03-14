@@ -30,6 +30,9 @@ all
 
 #include <Arduino.h>
 
+#include "calibration.h"
+#include <algorithm>
+
 // statistics (stats sent only when there is no communication)
 class Statistics
 {
@@ -96,8 +99,21 @@ class Statistics
      */
     void reset(unsigned long currentTime);
 
+    /**
+     * @brief Light reset statistics
+     *
+     * @param curTime The current time in milliseconds
+     * @param hasData Indicates if there is data available
+     */
     void lightReset(unsigned long curTime, bool hasData);
 
+    /**
+     * @brief Handle statistics update based on the current time, delta time, and data availability
+     *
+     * @param currentTime The current time in milliseconds
+     * @param deltaTime The time difference since the last update in milliseconds
+     * @param hasData Indicates if there is data available
+     */
     void handle(unsigned long currentTime, unsigned long deltaTime, bool hasData);
 };
 

@@ -31,6 +31,8 @@ all
 #include "calibration.h"
 #include <Arduino.h>
 
+#include "led_controller.h"
+
 /**
  * @brief my AWA frame protocol definition
  *
@@ -179,11 +181,6 @@ class FrameState
      */
     void rgb2rgbw();
 #endif
-
-    /**
-     * @brief Incoming calibration data
-     *
-     */
 };
 
 extern FrameState frameState;

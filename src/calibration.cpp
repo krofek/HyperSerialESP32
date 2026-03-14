@@ -2,8 +2,6 @@
 
 #if defined(NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
 
-#include <algorithm>
-
 Calibration calibration;
 
 void Calibration::prepare()

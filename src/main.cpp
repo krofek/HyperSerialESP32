@@ -25,12 +25,10 @@ all
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE.
  */
+#include <Arduino.h>
 
 #include "calibration.h"
 #include "config.h"
-#include <Arduino.h>
-
-#define SerialPort Serial
 
 #ifdef LED_POWER_PIN
 #include "powercontrol.h"
@@ -40,7 +38,6 @@ all
 
 void setup()
 {
-    // Init serial port
     Serial.setRxBufferSize(MAX_BUFFER - 1);
     Serial.setTimeout(50);
     Serial.begin(SERIALCOM_SPEED);

@@ -1,8 +1,5 @@
 #include "statistics.h"
 
-#include "calibration.h"
-#include <algorithm>
-
 Statistics statistics;
 
 unsigned long Statistics::getStartTime()

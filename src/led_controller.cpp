@@ -1,7 +1,5 @@
 #include "led_controller.h"
 
-#include "statistics.h"
-
 LedController controller;
 
 int LedController::getLedsNumber()

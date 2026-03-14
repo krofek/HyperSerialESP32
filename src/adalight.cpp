@@ -1,14 +1,5 @@
 #include "adalight.h"
 
-#include "config.h"
-#include "framestate.h"
-#include "led_controller.h"
-#include "statistics.h"
-
-#if defined(LED_POWER_PIN)
-#include "powercontrol.h"
-#endif
-
 #if defined(HS_MULTICORE)
 TaskHandle_t Adalight::processDataHandle = nullptr;
 TaskHandle_t Adalight::processSerialHandle = nullptr;

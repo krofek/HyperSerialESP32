@@ -30,6 +30,15 @@ all
 
 #include <Arduino.h>
 
+#include "config.h"
+#include "framestate.h"
+#include "led_controller.h"
+#include "statistics.h"
+
+#if defined(LED_POWER_PIN)
+#include "powercontrol.h"
+#endif
+
 class Adalight
 {
   public:
@@ -46,15 +55,39 @@ class Adalight
      */
     static void processDataTask(void *parameters);
 
+    /**
+     * @brief separate thread for handling serial communication and filling the
+     * buffer
+     *
+     * @param parameters
+     */
     static void processSerialTask(void *parameters);
 
+    /**
+     * @brief process incoming serial data
+     *
+     * @return true
+     * @return false
+     */
     static bool processSerial();
 
+    /**
+     * @brief process data from the buffer and prepare it for rendering
+     *
+     */
     static void processData();
 
+    /**
+     * @brief setup multi-core processing
+     *
+     */
 #ifdef HS_MULTICORE
     static void setupMultiCore();
 #endif
 
+    /**
+     * @brief initialize Adalight
+     *
+     */
     static void init();
 };
