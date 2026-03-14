@@ -12,7 +12,7 @@ ILedDriver *LedController::getLedStrip1()
     return ledStrip1;
 }
 
-#if defined(SECOND_SEGMENT_START_INDEX)
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
 ILedDriver *LedController::getLedStrip2()
 {
     return ledStrip2;
@@ -27,7 +27,7 @@ void LedController::initLedStrip(int count)
         ledStrip1 = nullptr;
     }
 
-#if defined(SECOND_SEGMENT_START_INDEX)
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
     if (ledStrip2 != nullptr)
     {
         delete ledStrip2;
@@ -37,11 +37,11 @@ void LedController::initLedStrip(int count)
 
     ledsNumber = count;
 
-#if defined(SECOND_SEGMENT_START_INDEX)
-    if (ledsNumber > SECOND_SEGMENT_START_INDEX)
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
+    if (ledsNumber > HS_SECOND_SEGMENT_START_INDEX)
     {
-        ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX);
-        ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX);
+        ledStrip1 = new LED_DRIVER(HS_SECOND_SEGMENT_START_INDEX);
+        ledStrip2 = new LED_DRIVER2(ledsNumber - HS_SECOND_SEGMENT_START_INDEX);
     }
 #else
     ledStrip1 = new LED_DRIVER(ledsNumber);
@@ -63,7 +63,7 @@ bool LedController::canRender(bool newFrame)
     if (newFrame)
         readyToRender = true;
 
-#if defined(SECOND_SEGMENT_START_INDEX)
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
     return readyToRender && (ledStrip1 != nullptr && ledStrip1->canShow()) &&
            !(ledStrip2 != nullptr && !ledStrip2->canShow());
 #else
@@ -73,7 +73,7 @@ bool LedController::canRender(bool newFrame)
 
 void LedController::renderLeds()
 {
-#if defined(SECOND_SEGMENT_START_INDEX)
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
     readyToRender = false;
 
     ledStrip1->show(false);
@@ -85,27 +85,27 @@ void LedController::renderLeds()
 #endif
 }
 
-bool LedController::setStripPixel(uint16_t pix, RgbwColor &inputColor)
+bool LedController::setStripPixel(uint16_t pixel, RgbwColor &color)
 {
-    if (pix < ledsNumber)
+    if (pixel < ledsNumber)
     {
-#if defined(SECOND_SEGMENT_START_INDEX)
-        if (pix < SECOND_SEGMENT_START_INDEX)
-            ledStrip1->setPixelColor(pix, inputColor);
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
+        if (pixel < HS_SECOND_SEGMENT_START_INDEX)
+            ledStrip1->setPixelColor(pixel, color);
         else
         {
 #if defined(SECOND_SEGMENT_REVERSED)
-            ledStrip2->setPixelColor(ledsNumber - pix - 1, inputColor);
+            ledStrip2->setPixelColor(ledsNumber - pixel - 1, color);
 #else
-            ledStrip2->setPixelColor(pix - SECOND_SEGMENT_START_INDEX, inputColor);
+            ledStrip2->setPixelColor(pixel - HS_SECOND_SEGMENT_START_INDEX, color);
 #endif
         }
 #else
-        ledStrip1->setPixelColor(pix, inputColor);
+        ledStrip1->setPixelColor(pixel, color);
 #endif
     }
 
-    return (pix + 1 < ledsNumber);
+    return (pixel + 1 < ledsNumber);
 }
 
 bool LedController::isAtEndOfQueue()

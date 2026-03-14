@@ -264,13 +264,13 @@ void Adalight::init()
 
     Serial.println(HELLO_MESSAGE);
 
-#if defined(SECOND_SEGMENT_START_INDEX)
-    Serial.write("SECOND_SEGMENT_START_INDEX = ");
-    Serial.println(SECOND_SEGMENT_START_INDEX);
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
+    Serial.write("HS_SECOND_SEGMENT_START_INDEX = ");
+    Serial.println(HS_SECOND_SEGMENT_START_INDEX);
 #endif
 
 // Colorspace/Led type info
-#if defined(HS_NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+#if defined(HS_NEOPIXEL_RGBW) || defined(HS_NEOPIXEL_RGB)
 #ifdef HS_NEOPIXEL_RGBW
 #ifdef HS_COLD_WHITE
     Serial.println("FastLED SK6812 cold GRBW. ");

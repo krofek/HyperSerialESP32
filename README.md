@@ -1,5 +1,7 @@
 # HyperSerialESP32
 
+**This is a modiefied version of awawa-dev/HyperSerialESP32 using FastLed instead of NeopixelBus, fork and change platformio.ini according to needs.**
+
 Exposes a high-speed USB serial port at 2Mb baud for driving LED strips using the FastLED library. It’s intended to replace slow Arduino-based solutions (a 3.3V to 5V level shifter may be required). **A data-integrity check (Fletcher's checksum) is included in the new 'Awa' protocol for HyperHDR, eliminating random flashing caused by serial transmission errors.** This option must be enabled in HyperHDR for the system to work correctly, as shown in the configuration screenshot below.
 
 **Make sure that the serial chip on your ESP32 can handle 2Mb baud: for example, the CP2102 cannot, as its maximum speed is 1Mb. You can compile a version for that lower speed, but that defeats the purpose. The inexpensive CH340G handles 2Mb without issues, and the CH9102x should also work — even at 4Mb.**
@@ -106,7 +108,7 @@ Tutorial: https://github.com/awawa-dev/HyperSerialESP32/wiki
 # Multi-Segment Wiring
 
 Using multi-segment wiring allows you to split your addressable LED strip (for example SK6812 RGBW) into two smaller parts while keeping one logical strip in HyperHDR. Proposed example of building a multisegment:
-- Divide a long or dense strip of LEDs into 2 smaller equal parts. So `SECOND_SEGMENT_START_INDEX` in the HyperSerialESP32 firmware is the total number of LEDs divided by 2.
+- Divide a long or dense strip of LEDs into 2 smaller equal parts. So `HS_SECOND_SEGMENT_START_INDEX` in the HyperSerialESP32 firmware is the total number of LEDs divided by 2.
 - Build your first segment traditional way e.g. clockwise, so it starts somewhere in middle of the bottom of frame/TV and ends in the middle of the top of frame/TV
 - Start the second segment in the opposite direction to the first one e.g. counterclockwise (`SECOND_SEGMENT_REVERSED` option in the HyperSerialESP32 firmware configuration must be enabled). So it starts somewhere in the middle of the bottom of the frame/TV and ends in the middle of the top of the TV/frame.  Both segments could be optionally connected if possible at the top but only 5v and ground ( NOT the data line).
 - The data line starts for both segments somewhere in the middle of the bottom of the TV/frame (where each of the LED strips starts)
@@ -121,10 +123,10 @@ You add these to your board's config. Be sure to put `-D` in front of each setti
 Examples of final build_flags for 288 LEDs divided into 2 equal segments in the `platformio.ini`:
 ```
 [env:SK6812_RGBW_COLD]
-build_flags = -DHS_NEOPIXEL_RGBW -DHS_COLD_WHITE -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
+build_flags = -DHS_NEOPIXEL_RGBW -DHS_COLD_WHITE -DHS_DATA_PIN=2 ${env.build_flags} -DHS_SECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
 ...
 [env:WS281x_RGB]
-build_flags = -DNEOPIXEL_RGB -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
+build_flags = -DHS_NEOPIXEL_RGB -DHS_DATA_PIN=2 ${env.build_flags} -DHS_SECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
 ...
 ```
 Implementation example:
@@ -154,9 +156,9 @@ ESP32 MH-ET LIVE mini is capable of 4Mb serial port speed and ESP32-S2 lolin min
 
 | Parallel multi-segment mode / Device                           | ESP32<br> MH-ET LIVE mini @ 4Mb speed |  ESP32-S2<br> Lolin mini @ 5Mb speed   |
 |---------------------------------------------------------------------------------------|--------------------------|------------------------------|
-| 300LEDs RGBW<br>Refresh rate/continues output=100Hz<br>SECOND_SEGMENT_START_INDEX=150 |            100           |               100            |
-| 600LEDs RGBW<br>Refresh rate/continues output=83Hz <br>SECOND_SEGMENT_START_INDEX=300 |             83           |                83            |
-| 900LEDs RGBW<br>Refresh rate/continues output=55Hz <br>SECOND_SEGMENT_START_INDEX=450 |             55           |                55            |
+| 300LEDs RGBW<br>Refresh rate/continues output=100Hz<br>HS_SECOND_SEGMENT_START_INDEX=150 |            100           |               100            |
+| 600LEDs RGBW<br>Refresh rate/continues output=83Hz <br>HS_SECOND_SEGMENT_START_INDEX=300 |             83           |                83            |
+| 900LEDs RGBW<br>Refresh rate/continues output=55Hz <br>HS_SECOND_SEGMENT_START_INDEX=450 |             55           |                55            |
 
 ## ESP32 / ESP32-S2 single segment 
 
