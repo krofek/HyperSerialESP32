@@ -73,15 +73,10 @@ bool LedController::canRender(bool newFrame)
 
 void LedController::renderLeds()
 {
+    readyToRender = false;
+    ledStrip1->show();
 #if defined(HS_SECOND_SEGMENT_START_INDEX)
-    readyToRender = false;
-
-    ledStrip1->show(false);
-    if (ledStrip2 != nullptr)
-        ledStrip2->show(false);
-#else
-    readyToRender = false;
-    ledStrip1->show(false);
+    ledStrip2->show();
 #endif
 }
 

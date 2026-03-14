@@ -15,7 +15,7 @@ class ILedDriver
   public:
     virtual ~ILedDriver() = default;
     virtual bool canShow() = 0;
-    virtual void show(bool safe = true) = 0;
+    virtual void show() = 0;
     virtual void begin() = 0;
     virtual void setPixelColor(uint16_t index, RgbwColor color) = 0;
 };

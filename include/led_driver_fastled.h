@@ -15,19 +15,13 @@
 
 #if HS_LED_TYPE == HS_NEOPIXEL_RGBW || HS_LED_TYPE == HS_NEOPIXEL_RGB
 #define LED_DRIVER ClocklessStripFastLed<HS_DATA_PIN, GRB>
-#elif HS_LED_TYPE == SPI_LED_APA102
-#define LED_DRIVER Apa1002StripFastLed<HS_DATA_PIN, HS_CLOCK_PIN, BGR>
-#elif HS_LED_TYPE == SPI_LED_WS2801
-#define LED_DRIVER Ws2801StripFastLed<HS_DATA_PIN, HS_CLOCK_PIN, RGB>
-#endif
-
 #if defined(HS_SECOND_SEGMENT_START_INDEX)
-#if HS_LED_TYPE == HS_NEOPIXEL_RGBW || HS_LED_TYPE == HS_NEOPIXEL_RGB
 #define LED_DRIVER2 ClocklessStripFastLed<HS_SECOND_SEGMENT_DATA_PIN, GRB>
-#elif HS_LED_TYPE == SPI_LED_APA102
-#define LED_DRIVER2 Apa1002StripFastLed<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, BGR>
-#elif HS_LED_TYPE == SPI_LED_WS2801
-#define LED_DRIVER2 Ws2801StripFastLed<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, RGB>
+#endif
+#elif HS_LED_TYPE == HS_SPI_LED_APA102 || HS_LED_TYPE == HS_SPI_LED_WS2801
+#define LED_DRIVER SPIStripFastLed<HS_DATA_PIN, HS_CLOCK_PIN, BGR>
+#if defined(HS_SECOND_SEGMENT_START_INDEX)
+#define LED_DRIVER2 SPIStripFastLed<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, BGR>
 #endif
 #endif
 
@@ -55,7 +49,7 @@ template <typename TDerived> class LedDriverFastLed : public ILedDriver
         return true;
     }
 
-    void show(bool = true) override
+    void show() override
     {
         FastLED.show();
     }
@@ -71,6 +65,7 @@ template <typename TDerived> class LedDriverFastLed : public ILedDriver
     }
 };
 
+#if HS_LED_TYPE == HS_NEOPIXEL_RGBW || HS_LED_TYPE == HS_NEOPIXEL_RGB
 template <uint8_t DATA_GPIO, uint8_t PIXEL_ORDER_VALUE>
 class ClocklessStripFastLed : public LedDriverFastLed<ClocklessStripFastLed<DATA_GPIO, PIXEL_ORDER_VALUE>>
 {
@@ -91,37 +86,28 @@ class ClocklessStripFastLed : public LedDriverFastLed<ClocklessStripFastLed<DATA
 #endif
     }
 };
+#endif
 
+#if HS_LED_TYPE == HS_SPI_LED_APA102 || HS_LED_TYPE == HS_SPI_LED_WS2801
 template <uint8_t DATA_GPIO, uint8_t CLOCK_GPIO, uint8_t PIXEL_ORDER_VALUE>
-class Apa1002StripFastLed : public LedDriverFastLed<Apa1002StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
+class SPIStripFastLed : public LedDriverFastLed<SPIStripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
 {
   public:
-    using Base = LedDriverFastLed<Apa1002StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
+    using Base = LedDriverFastLed<SPIStripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
 
-    Apa1002StripFastLed(int count) : Base(count)
+    SPIStripFastLed(int count) : Base(count)
     {
     }
 
     void beginImpl()
     {
+#if HS_LED_TYPE == HS_SPI_LED_APA102
         FastLED.addLeds<APA102, DATA_GPIO, CLOCK_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds,
                                                                                                this->ledCount);
-    }
-};
-
-template <uint8_t DATA_GPIO, uint8_t CLOCK_GPIO, uint8_t PIXEL_ORDER_VALUE>
-class Ws2801StripFastLed : public LedDriverFastLed<Ws2801StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
-{
-  public:
-    using Base = LedDriverFastLed<Ws2801StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
-
-    Ws2801StripFastLed(int count) : Base(count)
-    {
-    }
-
-    void beginImpl()
-    {
+#elif HS_LED_TYPE == HS_SPI_LED_WS2801
         FastLED.addLeds<WS2801, DATA_GPIO, CLOCK_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds,
                                                                                                this->ledCount);
+#endif
     }
 };
+#endif
