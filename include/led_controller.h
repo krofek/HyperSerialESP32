@@ -25,11 +25,10 @@ all
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE.
  */
-
 #pragma once
 
 #include "config.h"
-#include "fastled_adapter.h"
+#include "led_adapter_fastled.h"
 #include "statistics.h"
 
 class LedController
@@ -42,9 +41,9 @@ class LedController
     int ledsNumber = 0;
     bool readyToRender = false;
 
-    LED_DRIVER *ledStrip1 = nullptr;
+    ILedDriver *ledStrip1 = nullptr;
 #if defined(SECOND_SEGMENT_START_INDEX)
-    LED_DRIVER2 *ledStrip2 = nullptr;
+    ILedDriver *ledStrip2 = nullptr;
 #endif
 
   public:
@@ -52,9 +51,9 @@ class LedController
 
     bool canRender(bool newFrame);
 
-    LED_DRIVER *getLedStrip1();
+    ILedDriver *getLedStrip1();
 #if defined(SECOND_SEGMENT_START_INDEX)
-    LED_DRIVER2 *getLedStrip2();
+    ILedDriver *getLedStrip2();
 #endif
 
     void initLedStrip(int count);

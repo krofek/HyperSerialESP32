@@ -31,7 +31,7 @@ all
 #if defined(NEOPIXEL_RGBW)
 
 #include "config.h"
-#include "fastled_adapter.h"
+#include <Arduino.h>
 #include <algorithm>
 #include <stdint.h>
 
