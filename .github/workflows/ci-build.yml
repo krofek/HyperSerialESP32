@@ -80,7 +80,7 @@ jobs:
 
       # If version contains alpha or beta, mark draft release as pre-release
       - name: Mark release as pre-release
-        if: contains(env.VERSION, 'alpha') || contains(env.VERSION, 'beta')
+        if: contains(github.env.VERSION, 'alpha') || contains(github.env.VERSION, 'beta')
         run: echo "preRelease=true" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v7.0.0
@@ -92,12 +92,12 @@ jobs:
       - name: Create draft release
         uses: softprops/action-gh-release@v2.5.0
         with:
-          name: HyperSerialESP32 ${{ env.VERSION }}
-          tag_name: ${{ env.TAG }}
+          name: HyperSerialESP32 ${{ github.env.VERSION }}
+          tag_name: ${{ github.env.TAG }}
           files: |
             *.bin
             *.zip
           draft: true
-          prerelease: ${{ env.preRelease }}
+          prerelease: ${{ github.env.preRelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
