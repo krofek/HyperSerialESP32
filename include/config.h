@@ -4,3 +4,6 @@
 #define HELLO_MESSAGE "\r\nWelcome!\r\nAwa driver 9."
 
 #define ROUND_DIVIDE(numer, denom) (((numer) + (denom) / 2) / (denom))
+
+// timeout after which the leds will be turned off if no reset is applied
+#define LED_POWER_CONTROL_OFF_PERIOD 5000

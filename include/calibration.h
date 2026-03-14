@@ -30,8 +30,9 @@ all
 
 #if defined(HS_NEOPIXEL_RGBW)
 
-#include "config.h"
 #include <Arduino.h>
+
+#include "config.h"
 #include <algorithm>
 #include <stdint.h>
 

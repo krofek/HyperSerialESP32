@@ -28,9 +28,9 @@ all
 
 #pragma once
 
-#include "calibration.h"
 #include <Arduino.h>
 
+#include "calibration.h"
 #include "led_controller.h"
 
 /**

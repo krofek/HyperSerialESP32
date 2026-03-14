@@ -30,6 +30,8 @@ all
 
 #include <Arduino.h>
 
+#include "config.h"
+
 #if defined(LED_POWER_PIN)
 
 #if LED_POWER_INVERT
@@ -47,9 +49,6 @@ all
  */
 class PowerControl
 {
-    // timeout after which the leds will be turned off if no reset is applied
-    const unsigned long POWER_OFF_PERIOD = 5 * 1000;
-
     // last timestamp power off timer got reset
     volatile unsigned long lastPowerOffResetTimestamp = 0;
 

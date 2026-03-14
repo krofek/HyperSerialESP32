@@ -36,7 +36,7 @@ void PowerControl::update(bool hasData)
         powerOn();
         lastPowerOffResetTimestamp = millis();
     }
-    else if (millis() - lastPowerOffResetTimestamp > POWER_OFF_PERIOD)
+    else if (millis() - lastPowerOffResetTimestamp > LED_POWER_CONTROL_OFF_PERIOD)
     {
         powerOff();
     }
