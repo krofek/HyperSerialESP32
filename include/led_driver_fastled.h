@@ -31,21 +31,21 @@
 #endif
 #endif
 
-template <typename TDerived> class LedAdapterFastLed : public ILedDriver
+template <typename TDerived> class LedDriverFastLed : public ILedDriver
 {
   protected:
     int ledCount;
     CRGB *leds;
 
   public:
-    explicit LedAdapterFastLed(int count)
+    explicit LedDriverFastLed(int count)
     {
         ledCount = count;
         leds = new CRGB[count]();
         begin();
     }
 
-    ~LedAdapterFastLed() override
+    ~LedDriverFastLed() override
     {
         delete[] leds;
     }
@@ -72,10 +72,10 @@ template <typename TDerived> class LedAdapterFastLed : public ILedDriver
 };
 
 template <uint8_t DATA_GPIO, uint8_t PIXEL_ORDER_VALUE>
-class ClocklessStripFastLed : public LedAdapterFastLed<ClocklessStripFastLed<DATA_GPIO, PIXEL_ORDER_VALUE>>
+class ClocklessStripFastLed : public LedDriverFastLed<ClocklessStripFastLed<DATA_GPIO, PIXEL_ORDER_VALUE>>
 {
   public:
-    using Base = LedAdapterFastLed<ClocklessStripFastLed<DATA_GPIO, PIXEL_ORDER_VALUE>>;
+    using Base = LedDriverFastLed<ClocklessStripFastLed<DATA_GPIO, PIXEL_ORDER_VALUE>>;
 
     ClocklessStripFastLed(int count) : Base(count)
     {
@@ -93,10 +93,10 @@ class ClocklessStripFastLed : public LedAdapterFastLed<ClocklessStripFastLed<DAT
 };
 
 template <uint8_t DATA_GPIO, uint8_t CLOCK_GPIO, uint8_t PIXEL_ORDER_VALUE>
-class Apa1002StripFastLed : public LedAdapterFastLed<Apa1002StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
+class Apa1002StripFastLed : public LedDriverFastLed<Apa1002StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
 {
   public:
-    using Base = LedAdapterFastLed<Apa1002StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
+    using Base = LedDriverFastLed<Apa1002StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
 
     Apa1002StripFastLed(int count) : Base(count)
     {
@@ -110,10 +110,10 @@ class Apa1002StripFastLed : public LedAdapterFastLed<Apa1002StripFastLed<DATA_GP
 };
 
 template <uint8_t DATA_GPIO, uint8_t CLOCK_GPIO, uint8_t PIXEL_ORDER_VALUE>
-class Ws2801StripFastLed : public LedAdapterFastLed<Ws2801StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
+class Ws2801StripFastLed : public LedDriverFastLed<Ws2801StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>
 {
   public:
-    using Base = LedAdapterFastLed<Ws2801StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
+    using Base = LedDriverFastLed<Ws2801StripFastLed<DATA_GPIO, CLOCK_GPIO, PIXEL_ORDER_VALUE>>;
 
     Ws2801StripFastLed(int count) : Base(count)
     {

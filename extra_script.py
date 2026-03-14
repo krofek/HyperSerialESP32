@@ -40,7 +40,7 @@ def esp32_create_combined_bin(source, target, env):
     cmd = [
         "--chip",
         chip,
-        "merge_bin",
+        "merge-bin",
         "-o",
         new_file_name,
         "--flash-mode",

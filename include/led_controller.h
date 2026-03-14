@@ -28,7 +28,7 @@ all
 #pragma once
 
 #include "config.h"
-#include "led_adapter_fastled.h"
+#include "led_driver_fastled.h"
 
 class LedController
 {
