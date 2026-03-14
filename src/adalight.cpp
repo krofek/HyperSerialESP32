@@ -28,13 +28,13 @@ void Adalight::processSerialTask(void *parameters)
 {
     for (;;)
     {
-        if (serialTaskHandler() || !controller.isAtEndOfQueue())
+        if (processSerial() || !controller.isAtEndOfQueue())
             xSemaphoreGive(i2sXSemaphore);
         yield();
     }
 }
 
-bool Adalight::serialTaskHandler()
+bool Adalight::processSerial()
 {
     uint16_t incomingSize = min(Serial.available(), MAX_BUFFER - 1);
 
@@ -61,25 +61,12 @@ bool Adalight::serialTaskHandler()
     return (incomingSize > 0);
 }
 
-void Adalight::updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData)
-{
-    if (hasData && deltaTime >= 1000 && deltaTime <= 1025 && statistics.getGoodFrames() > 3)
-    {
-        statistics.update(currentTime);
-    }
-
-    else if (deltaTime > 1025)
-    {
-        statistics.lightReset(currentTime, hasData);
-    }
-}
-
 void Adalight::processData()
 {
     unsigned long currentTime = millis();
     unsigned long deltaTime = currentTime - statistics.getStartTime();
 
-    updateAdalightStatistics(currentTime, deltaTime, !controller.isAtEndOfQueue());
+    statistics.handle(currentTime, deltaTime, !controller.isAtEndOfQueue());
 
     if (statistics.getStartTime() + 5000 < millis())
     {
@@ -265,7 +252,7 @@ void Adalight::processData()
 
                 currentTime = millis();
                 deltaTime = currentTime - statistics.getStartTime();
-                updateAdalightStatistics(currentTime, deltaTime, true);
+                statistics.handle(currentTime, deltaTime, true);
                 yield();
             }
 

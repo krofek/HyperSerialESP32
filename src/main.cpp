@@ -64,7 +64,7 @@ void setup()
 void loop()
 {
 #if !defined(HS_MULTICORE)
-    Adalight::serialTaskHandler();
+    Adalight::processSerial();
     Adalight::processData();
 #endif
 }

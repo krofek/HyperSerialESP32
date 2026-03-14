@@ -48,9 +48,7 @@ class Adalight
 
     static void processSerialTask(void *parameters);
 
-    static bool serialTaskHandler();
-
-    static void updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData);
+    static bool processSerial();
 
     static void processData();
 

@@ -97,6 +97,8 @@ class Statistics
     void reset(unsigned long currentTime);
 
     void lightReset(unsigned long curTime, bool hasData);
+
+    void handle(unsigned long currentTime, unsigned long deltaTime, bool hasData);
 };
 
 extern Statistics statistics;

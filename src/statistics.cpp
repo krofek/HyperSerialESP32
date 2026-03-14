@@ -85,3 +85,15 @@ void Statistics::lightReset(unsigned long curTime, bool hasData)
     totalFrames = 0;
     showFrames = 0;
 }
+
+void Statistics::handle(unsigned long currentTime, unsigned long deltaTime, bool hasData)
+{
+    if (hasData && deltaTime >= 1000 && deltaTime <= 1025 && goodFrames > 3)
+    {
+        update(currentTime);
+    }
+    else if (deltaTime > 1025)
+    {
+        lightReset(currentTime, hasData);
+    }
+}
