@@ -43,9 +43,18 @@ class Adalight
 {
   public:
 #ifdef HS_MULTICORE
+    /**
+     * @brief FreeRTOS task handles and semaphore for multi-core processing
+     */
     static TaskHandle_t processDataHandle;
     static TaskHandle_t processSerialHandle;
     static xSemaphoreHandle i2sXSemaphore;
+
+    /**
+     * @brief setup multi-core processing
+     *
+     */
+    static void setupMultiCore();
 #endif
 
     /**
@@ -76,14 +85,6 @@ class Adalight
      *
      */
     static void processData();
-
-    /**
-     * @brief setup multi-core processing
-     *
-     */
-#ifdef HS_MULTICORE
-    static void setupMultiCore();
-#endif
 
     /**
      * @brief initialize Adalight

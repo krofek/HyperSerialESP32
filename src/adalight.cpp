@@ -4,6 +4,14 @@
 TaskHandle_t Adalight::processDataHandle = nullptr;
 TaskHandle_t Adalight::processSerialHandle = nullptr;
 xSemaphoreHandle Adalight::i2sXSemaphore = nullptr;
+
+void Adalight::setupMultiCore()
+{
+    i2sXSemaphore = xSemaphoreCreateBinary();
+
+    xTaskCreatePinnedToCore(processDataTask, "ProcessDataTask", 4096, NULL, 1, &processDataHandle, 0);
+    xTaskCreatePinnedToCore(processSerialTask, "ProcessSerialTask", 4096, NULL, 1, &processSerialHandle, 1);
+}
 #endif
 
 void Adalight::processDataTask(void *parameters)
@@ -64,13 +72,10 @@ void Adalight::processData()
         frameState.setState(AwaProtocol::HEADER_A);
     }
 
-    if (controller.hasLateFrameToRender())
+    if (controller.hasLateFrameToRender() && controller.canRender(false))
     {
-        if (controller.canRender(false))
-        {
-            statistics.increaseShow();
-            controller.renderLeds();
-        }
+        statistics.increaseShow();
+        controller.renderLeds();
     }
 
     while (!controller.isAtEndOfQueue())
@@ -175,17 +180,11 @@ void Adalight::processData()
 #endif
 
             if (controller.setStripPixel(frameState.getCurrentLedIndex(), frameState.color))
-            {
                 frameState.setState(AwaProtocol::RED);
-            }
+            else if (frameState.isProtocolVersion2())
+                frameState.setState(AwaProtocol::VERSION2_GAIN);
             else
-            {
-                if (frameState.isProtocolVersion2())
-                    frameState.setState(AwaProtocol::VERSION2_GAIN);
-                else
-                    frameState.setState(AwaProtocol::FLETCHER1);
-            }
-
+                frameState.setState(AwaProtocol::FLETCHER1);
             break;
 
         case AwaProtocol::VERSION2_GAIN:
@@ -251,14 +250,6 @@ void Adalight::processData()
             break;
         }
     }
-}
-
-void Adalight::setupMultiCore()
-{
-    i2sXSemaphore = xSemaphoreCreateBinary();
-
-    xTaskCreatePinnedToCore(processDataTask, "ProcessDataTask", 4096, NULL, 1, &processDataHandle, 0);
-    xTaskCreatePinnedToCore(processSerialTask, "ProcessSerialTask", 4096, NULL, 1, &processSerialHandle, 1);
 }
 
 void Adalight::init()
