@@ -13,7 +13,8 @@
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
 *
-*  The above copyright notice and this permission notice shall be included in all
+*  The above copyright notice and this permission notice shall be included in
+all
 *  copies or substantial portions of the Software.
 
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -32,37 +33,37 @@
 #if defined(LED_POWER_PIN)
 
 #if LED_POWER_INVERT
-	#define SET_RELAY_HIGH() powerOff()
-	#define SET_RELAY_LOW() powerOn()
+#define SET_RELAY_HIGH() powerOff()
+#define SET_RELAY_LOW() powerOn()
 #else
-	#define SET_RELAY_HIGH() powerOn()
-	#define SET_RELAY_LOW() powerOff()
+#define SET_RELAY_HIGH() powerOn()
+#define SET_RELAY_LOW() powerOff()
 #endif
 
 /**
- * @brief Contains logic for turning on and off the power to leds using external relay
+ * @brief Contains logic for turning on and off the power to leds using external
+ * relay
  *
  */
 class PowerControl
 {
-	// timeout after which the leds will be turned off if no reset is applied
-	const unsigned long POWER_OFF_PERIOD = 5 * 1000;
+    // timeout after which the leds will be turned off if no reset is applied
+    const unsigned long POWER_OFF_PERIOD = 5 * 1000;
 
-	// last timestamp power off timer got reset
-	volatile unsigned long lastPowerOffResetTimestamp = 0;
+    // last timestamp power off timer got reset
+    volatile unsigned long lastPowerOffResetTimestamp = 0;
 
-	// caching the PIN state to avoid unnecessary calls to the GPIO register
-	volatile int currentPowerPinMode = LOW;
+    // caching the PIN state to avoid unnecessary calls to the GPIO register
+    volatile int currentPowerPinMode = LOW;
 
-	public:
-		void init();
+  public:
+    void init();
 
-		void powerOn();
+    void powerOn();
 
-		void powerOff();
+    void powerOff();
 
-		void update(bool hasData);
-
+    void update(bool hasData);
 };
 
 extern PowerControl powerControl;

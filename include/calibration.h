@@ -13,7 +13,8 @@
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
 *
-*  The above copyright notice and this permission notice shall be included in all
+*  The above copyright notice and this permission notice shall be included in
+all
 *  copies or substantial portions of the Software.
 
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -27,59 +28,58 @@
 
 #pragma once
 
+#include "config.h"
 #include "fastled_adapter.h"
 #include <stdint.h>
-#include "config.h"
 
 #if defined(NEOPIXEL_RGBW)
 
 struct ChannelCorrection
 {
-	uint8_t white[256];
-	uint8_t red[256];
-	uint8_t green[256];
-	uint8_t blue[256];
+    uint8_t white[256];
+    uint8_t red[256];
+    uint8_t green[256];
+    uint8_t blue[256];
 };
 
 class Calibration
 {
-	private:
-		uint8_t gain = 0xFF;
-		uint8_t red = 0xA0;
-		uint8_t green = 0xA0;
-		uint8_t blue = 0xA0;
+  private:
+    uint8_t gain = 0xFF;
+    uint8_t red = 0xA0;
+    uint8_t green = 0xA0;
+    uint8_t blue = 0xA0;
 
-	public:
-		ChannelCorrection channelCorrection;
+  public:
+    ChannelCorrection channelCorrection;
 
-		Calibration();
+    Calibration();
 
-		/**
-		 * @brief Compare base calibration settings
-		 *
-		 */
-		bool compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
+    /**
+     * @brief Compare base calibration settings
+     *
+     */
+    bool compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
-		void prepare();
+    void prepare();
 
-		/**
-		 * @brief print RGBW calibration parameters when no data is received
-		 *
-		 */
-		void print();
+    /**
+     * @brief print RGBW calibration parameters when no data is received
+     *
+     */
+    void print();
 
-		void setGain(uint8_t newGain);
+    void setGain(uint8_t newGain);
 
-		void setRed(uint8_t newRed);
+    void setRed(uint8_t newRed);
 
-		void setGreen(uint8_t newGreen);
+    void setGreen(uint8_t newGreen);
 
-		void setBlue(uint8_t newBlue);
+    void setBlue(uint8_t newBlue);
 
-		void setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t newGreen, uint8_t newBlue);
+    void setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t newGreen, uint8_t newBlue);
 };
 
 extern Calibration calibration;
 
 #endif
-

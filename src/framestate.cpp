@@ -6,91 +6,90 @@ FrameState frameState;
 
 void FrameState::init(byte input)
 {
-	currentLed = 0;
-	count = input * 0x100;
-	CRC = input;
-	fletcher1 = 0;
-	fletcher2 = 0;
-	fletcherExt = 0;
-	position = 0;
+    currentLed = 0;
+    count = input * 0x100;
+    CRC = input;
+    fletcher1 = 0;
+    fletcher2 = 0;
+    fletcherExt = 0;
+    position = 0;
 }
 
 uint8_t FrameState::getCRC()
 {
-	return CRC;
+    return CRC;
 }
 
 uint16_t FrameState::getCount()
 {
-	return count;
+    return count;
 }
 
 uint16_t FrameState::getFletcher1()
 {
-	return fletcher1;
+    return fletcher1;
 }
 
 uint16_t FrameState::getFletcher2()
 {
-	return fletcher2;
+    return fletcher2;
 }
 
 uint16_t FrameState::getFletcherExt()
 {
-	return (fletcherExt != 0x41) ? fletcherExt : 0xaa;
+    return (fletcherExt != 0x41) ? fletcherExt : 0xaa;
 }
 
 uint16_t FrameState::getCurrentLedIndex()
 {
-	return currentLed++;
+    return currentLed++;
 }
 
 void FrameState::setProtocolVersion2(bool newVer)
 {
-	protocolVersion2 = newVer;
+    protocolVersion2 = newVer;
 }
 
 bool FrameState::isProtocolVersion2()
 {
-	return protocolVersion2;
+    return protocolVersion2;
 }
 
 void FrameState::setState(AwaProtocol newState)
 {
-	state = newState;
+    state = newState;
 }
 
 AwaProtocol FrameState::getState()
 {
-	return state;
+    return state;
 }
 
 void FrameState::computeCRC(byte input)
 {
-	count += input;
-	CRC = CRC ^ input ^ 0x55;
+    count += input;
+    CRC = CRC ^ input ^ 0x55;
 }
 
 void FrameState::addFletcher(byte input)
 {
-	fletcher1 = (fletcher1 + (uint16_t)input) % 255;
-	fletcher2 = (fletcher2 + fletcher1) % 255;
-	fletcherExt = (fletcherExt + (input ^ (position++))) % 255;
+    fletcher1 = (fletcher1 + (uint16_t)input) % 255;
+    fletcher2 = (fletcher2 + fletcher1) % 255;
+    fletcherExt = (fletcherExt + (input ^ (position++))) % 255;
 }
 
 #ifdef NEOPIXEL_RGBW
-	/**
-	* @brief Compute && correct the white channel
-	*
-	*/
-	void FrameState::rgb2rgbw()
-	{
-		color.W = min(calibration.channelCorrection.red[color.R],
-						min(calibration.channelCorrection.green[color.G],
-							calibration.channelCorrection.blue[color.B]));
-		color.R -= calibration.channelCorrection.red[color.W];
-		color.G -= calibration.channelCorrection.green[color.W];
-		color.B -= calibration.channelCorrection.blue[color.W];
-		color.W = calibration.channelCorrection.white[color.W];
-	}
+/**
+ * @brief Compute && correct the white channel
+ *
+ */
+void FrameState::rgb2rgbw()
+{
+    color.W = min(calibration.channelCorrection.red[color.R],
+                  min(calibration.channelCorrection.green[color.G], calibration.channelCorrection.blue[color.B]));
+    color.R -= calibration.channelCorrection.red[color.W];
+    color.G -= calibration.channelCorrection.green[color.W];
+    color.B -= calibration.channelCorrection.blue[color.W];
+    color.W = calibration.channelCorrection.white[color.W];
+}
 #endif

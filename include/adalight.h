@@ -13,7 +13,8 @@
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
 *
-*  The above copyright notice and this permission notice shall be included in all
+*  The above copyright notice and this permission notice shall be included in
+all
 *  copies or substantial portions of the Software.
 
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -29,32 +30,33 @@
 
 #include <Arduino.h>
 
-class Adalight {
-	public:
+class Adalight
+{
+  public:
+#ifdef HS_MULTICORE
+    static TaskHandle_t processDataHandle;
+    static TaskHandle_t processSerialHandle;
+    static xSemaphoreHandle i2sXSemaphore;
+#endif
 
-		static TaskHandle_t processDataHandle;
-		static TaskHandle_t processSerialHandle;
-		// semaphore to synchronize them
-		static xSemaphoreHandle i2sXSemaphore;
+    /**
+     * @brief separete thread for handling incoming data using cyclic buffer
+     *
+     * @param parameters
+     */
+    static void processDataTask(void *parameters);
 
-		/**
-		 * @brief separete thread for handling incoming data using cyclic buffer
-		 *
-		 * @param parameters
-		 */
-		static void processDataTask(void * parameters);
+    static void processSerialTask(void *parameters);
 
-		static void processSerialTask(void * parameters);
+    static bool serialTaskHandler();
 
-		static bool serialTaskHandler();
+    static void updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData);
 
-		static void updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData);
+    static void processData();
 
-		static void processData();
+#ifdef HS_MULTICORE
+    static void setupMultiCore();
+#endif
 
-	#ifdef HS_MULTICORE
-		static void setupMultiCore();
-	#endif
-	
-		static void init();
+    static void init();
 };

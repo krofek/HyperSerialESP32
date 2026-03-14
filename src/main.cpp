@@ -13,7 +13,8 @@
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
 *
-*  The above copyright notice and this permission notice shall be included in all
+*  The above copyright notice and this permission notice shall be included in
+all
 *  copies or substantial portions of the Software.
 
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -25,45 +26,45 @@
 *  SOFTWARE.
  */
 
-#include <Arduino.h>
-#include "config.h"
 #include "calibration.h"
+#include "config.h"
+#include <Arduino.h>
 
 #define SerialPort Serial
 
 #ifdef LED_POWER_PIN
-	#include "powercontrol.h"
+#include "powercontrol.h"
 #endif
 
 #include "adalight.h"
 
 void setup()
 {
-	// Init serial port
-	Serial.setRxBufferSize(MAX_BUFFER - 1);
-	Serial.setTimeout(50);
-	Serial.begin(SERIALCOM_SPEED);
+    // Init serial port
+    Serial.setRxBufferSize(MAX_BUFFER - 1);
+    Serial.setTimeout(50);
+    Serial.begin(SERIALCOM_SPEED);
 
-	while (!Serial) continue;
+    while (!Serial)
+        continue;
 
-	Adalight::init();
+    Adalight::init();
 
-	#if defined(LED_POWER_PIN)
-		Serial.write("LED_POWER_PIN = ");
-		Serial.println(LED_POWER_PIN);
-		powerControl.init();
-	#endif
+#if defined(LED_POWER_PIN)
+    Serial.write("LED_POWER_PIN = ");
+    Serial.println(LED_POWER_PIN);
+    powerControl.init();
+#endif
 
-	#ifdef HS_MULTICORE
-		Adalight::setupMultiCore();
-	#endif
+#ifdef HS_MULTICORE
+    Adalight::setupMultiCore();
+#endif
 }
 
 void loop()
 {
 #if !defined(HS_MULTICORE)
-	Adalight::serialTaskHandler();
-	Adalight::processData();
+    Adalight::serialTaskHandler();
+    Adalight::processData();
 #endif
 }
-

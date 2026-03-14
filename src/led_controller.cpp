@@ -6,91 +6,89 @@ LedController controller;
 
 int LedController::getLedsNumber()
 {
-	return ledsNumber;
+    return ledsNumber;
 }
 
-LED_DRIVER* LedController::getLedStrip1()
+LED_DRIVER *LedController::getLedStrip1()
 {
-	return ledStrip1;
+    return ledStrip1;
 }
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-LED_DRIVER2* LedController::getLedStrip2()
+LED_DRIVER2 *LedController::getLedStrip2()
 {
-	return ledStrip2;
+    return ledStrip2;
 }
 #endif
 
 void LedController::initLedStrip(int count)
 {
-	if (ledStrip1 != nullptr)
-	{
-		delete ledStrip1;
-		ledStrip1 = nullptr;
-	}
+    if (ledStrip1 != nullptr)
+    {
+        delete ledStrip1;
+        ledStrip1 = nullptr;
+    }
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-	if (ledStrip2 != nullptr)
-	{
-		delete ledStrip2;
-		ledStrip2 = nullptr;
-	}
+    if (ledStrip2 != nullptr)
+    {
+        delete ledStrip2;
+        ledStrip2 = nullptr;
+    }
 #endif
 
-	ledsNumber = count;
+    ledsNumber = count;
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-	if (ledsNumber > SECOND_SEGMENT_START_INDEX)
-	{
+    if (ledsNumber > SECOND_SEGMENT_START_INDEX)
+    {
 #if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-		ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX, HS_DATA_PIN);
-		ledStrip1->Begin();
-		ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX, HS_SECOND_SEGMENT_DATA_PIN);
-		ledStrip2->Begin();
+        ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX, HS_DATA_PIN);
+        ledStrip1->Begin();
+        ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX, HS_SECOND_SEGMENT_DATA_PIN);
+        ledStrip2->Begin();
 #else
-		ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX);
-		ledStrip1->Begin(HS_CLOCK_PIN, 12, HS_DATA_PIN, 15);
-		ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX);
-		ledStrip2->Begin(HS_SECOND_SEGMENT_CLOCK_PIN, 12, HS_SECOND_SEGMENT_DATA_PIN, 15);
+        ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX);
+        ledStrip1->Begin(HS_CLOCK_PIN, 12, HS_DATA_PIN, 15);
+        ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX);
+        ledStrip2->Begin(HS_SECOND_SEGMENT_CLOCK_PIN, 12, HS_SECOND_SEGMENT_DATA_PIN, 15);
 #endif
-	}
+    }
 #endif
 
-	if (ledStrip1 == nullptr)
-	{
+    if (ledStrip1 == nullptr)
+    {
 #if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-		ledStrip1 = new LED_DRIVER(ledsNumber, HS_DATA_PIN);
-		ledStrip1->Begin();
+        ledStrip1 = new LED_DRIVER(ledsNumber, HS_DATA_PIN);
+        ledStrip1->Begin();
 #else
-		ledStrip1 = new LED_DRIVER(ledsNumber);
-		ledStrip1->Begin(HS_CLOCK_PIN, 12, HS_DATA_PIN, 15);
+        ledStrip1 = new LED_DRIVER(ledsNumber);
+        ledStrip1->Begin(HS_CLOCK_PIN, 12, HS_DATA_PIN, 15);
 #endif
-	}
+    }
 }
 
 bool LedController::hasLateFrameToRender()
 {
-	return readyToRender;
+    return readyToRender;
 }
 
 void LedController::dropLateFrame()
 {
-	readyToRender = false;
+    readyToRender = false;
 }
 
 bool LedController::canRender(bool newFrame)
-{  
-	if(newFrame)
-		readyToRender = true;
+{
+    if (newFrame)
+        readyToRender = true;
 
 #if defined(SECOND_SEGMENT_START_INDEX)
- return readyToRender &&
-		(ledStrip1 != nullptr && ledStrip1->CanShow()) &&
-		!(ledStrip2 != nullptr && !ledStrip2->CanShow());
+    return readyToRender && (ledStrip1 != nullptr && ledStrip1->CanShow()) &&
+           !(ledStrip2 != nullptr && !ledStrip2->CanShow());
 #else
-	return readyToRender && ledStrip1 != nullptr && ledStrip1->CanShow();
+    return readyToRender && ledStrip1 != nullptr && ledStrip1->CanShow();
 #endif
-
 }
 
 void LedController::renderLeds()
@@ -102,65 +100,65 @@ void LedController::renderLeds()
     if (ledStrip2 != nullptr)
         ledStrip2->Show(false);
 #else
-	readyToRender = false;
-	ledStrip1->Show(false);
+    readyToRender = false;
+    ledStrip1->Show(false);
 #endif
 }
 
 bool LedController::setStripPixel(uint16_t pix, RgbwColor &inputColor)
 {
-	if (pix < ledsNumber)
-	{
+    if (pix < ledsNumber)
+    {
 #if defined(SECOND_SEGMENT_START_INDEX)
-		if (pix < SECOND_SEGMENT_START_INDEX)
-			ledStrip1->SetPixelColor(pix, inputColor);
-		else
-		{
+        if (pix < SECOND_SEGMENT_START_INDEX)
+            ledStrip1->SetPixelColor(pix, inputColor);
+        else
+        {
 #if defined(SECOND_SEGMENT_REVERSED)
-			ledStrip2->SetPixelColor(ledsNumber - pix - 1, inputColor);
+            ledStrip2->SetPixelColor(ledsNumber - pix - 1, inputColor);
 #else
-			ledStrip2->SetPixelColor(pix - SECOND_SEGMENT_START_INDEX, inputColor);
+            ledStrip2->SetPixelColor(pix - SECOND_SEGMENT_START_INDEX, inputColor);
 #endif
-		}
+        }
 #else
-		ledStrip1->SetPixelColor(pix, inputColor);
+        ledStrip1->SetPixelColor(pix, inputColor);
 #endif
-	}
+    }
 
-	return (pix + 1 < ledsNumber);
+    return (pix + 1 < ledsNumber);
 }
 
 bool LedController::isAtEndOfQueue()
 {
-	return queueCurrent == queueEnd;
+    return queueCurrent == queueEnd;
 }
 
 int LedController::getQueueCurrent()
 {
-	return queueCurrent;
+    return queueCurrent;
 }
 
 int LedController::getQueueEnd()
 {
-	return queueEnd;
+    return queueEnd;
 }
 
 void LedController::setQueueCurrent(int newQueueCurrent)
 {
-	queueCurrent = newQueueCurrent;
+    queueCurrent = newQueueCurrent;
 }
 
 void LedController::setQueueEnd(int newQueueEnd)
 {
-	queueEnd = newQueueEnd;
+    queueEnd = newQueueEnd;
 }
 
 byte LedController::getCurrentInput()
 {
-	return buffer[queueCurrent++];
+    return buffer[queueCurrent++];
 }
 
-uint8_t* LedController::getBuffer(int index)
+uint8_t *LedController::getBuffer(int index)
 {
-	return &buffer[index];
+    return &buffer[index];
 }

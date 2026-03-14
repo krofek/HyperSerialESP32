@@ -13,7 +13,8 @@
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
 *
-*  The above copyright notice and this permission notice shall be included in all
+*  The above copyright notice and this permission notice shall be included in
+all
 *  copies or substantial portions of the Software.
 
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -27,75 +28,63 @@
 
 #pragma once
 
-#include "calibration.h"
-#include "fastled_adapter.h"
 #include "config.h"
-
-#if defined(SECOND_SEGMENT_START_INDEX)
-	#if !defined(HS_SECOND_SEGMENT_DATA_PIN)
-		#error "Please define HS_SECOND_SEGMENT_DATA_PIN for second segment"
-	#elif !defined(HS_SECOND_SEGMENT_CLOCK_PIN) && !defined(NEOPIXEL_RGBW) && !defined(NEOPIXEL_RGB)
-		#error "Please define HS_SECOND_SEGMENT_CLOCK_PIN and HS_SECOND_SEGMENT_DATA_PIN for second segment"
-	#endif
-#endif
+#include "fastled_adapter.h"
 
 class LedController
 {
-	private:
-		uint8_t buffer[MAX_BUFFER + 1] = {0};
-		int queueCurrent = 0;
-		int queueEnd = 0;
-		int ledsNumber = 0;
+  private:
+    uint8_t buffer[MAX_BUFFER + 1] = {0};
 
-		LED_DRIVER* ledStrip1 = nullptr;
-	#if defined(SECOND_SEGMENT_START_INDEX)
-		LED_DRIVER2* ledStrip2 = nullptr;
-	#endif
-		bool readyToRender = false;
+    int queueCurrent = 0;
+    int queueEnd = 0;
+    int ledsNumber = 0;
+    bool readyToRender = false;
 
-	public:
-		int getLedsNumber();
-
-		bool canRender(bool newFrame);
-
-		LED_DRIVER* getLedStrip1();
+    LED_DRIVER *ledStrip1 = nullptr;
 #if defined(SECOND_SEGMENT_START_INDEX)
-		LED_DRIVER2* getLedStrip2();
+    LED_DRIVER2 *ledStrip2 = nullptr;
 #endif
 
-		void initLedStrip(int count);
+  public:
+    int getLedsNumber();
 
-		/**
-		 * @brief Check if there is already prepared frame to display
-		 *
-		 * @return true
-		 * @return false
-		 */
-		bool hasLateFrameToRender();
+    bool canRender(bool newFrame);
 
-		void dropLateFrame();
-
-#if defined(SECOND_SEGMENT_START_INDEX)				
-		void renderLeds(bool newFrame);
-#else
-		void renderLeds();
+    LED_DRIVER *getLedStrip1();
+#if defined(SECOND_SEGMENT_START_INDEX)
+    LED_DRIVER2 *getLedStrip2();
 #endif
 
-		bool setStripPixel(uint16_t pix, RgbwColor &inputColor);
+    void initLedStrip(int count);
 
-		bool isAtEndOfQueue();
+    /**
+     * @brief Check if there is already prepared frame to display
+     *
+     * @return true
+     * @return false
+     */
+    bool hasLateFrameToRender();
 
-		int getQueueCurrent();
+    void dropLateFrame();
 
-		int getQueueEnd();
+    void renderLeds();
 
-		void setQueueCurrent(int newQueueCurrent);
+    bool setStripPixel(uint16_t pix, RgbwColor &inputColor);
 
-		void setQueueEnd(int newQueueEnd);
+    bool isAtEndOfQueue();
 
-		byte getCurrentInput();
+    int getQueueCurrent();
 
-		uint8_t* getBuffer(int index);
+    int getQueueEnd();
+
+    void setQueueCurrent(int newQueueCurrent);
+
+    void setQueueEnd(int newQueueEnd);
+
+    byte getCurrentInput();
+
+    uint8_t *getBuffer(int index);
 };
 
 extern LedController controller;
