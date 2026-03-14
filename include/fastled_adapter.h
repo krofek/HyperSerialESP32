@@ -12,8 +12,6 @@
 #include <stdint.h>
 #include "led_driver.h"
 
-#define HYPERSERIAL_USE_FASTLED 1
-
 #if !defined(HYPERSERIAL_TESTING)
 	#include <FastLED.h>
 #endif
@@ -25,7 +23,6 @@
 #elif defined(SPILED_WS2801)
 	#define LED_DRIVER FastLedWs2801Strip<HS_DATA_PIN, HS_CLOCK_PIN, RGB>
 #endif
-
 
 #if defined(SECOND_SEGMENT_START_INDEX)
 	#if defined(NEOPIXEL_RGBW)
@@ -45,11 +42,7 @@ class FastLedStripBase : public ILedDriver
 	protected:
 		int ledCount;
 		CRGB* leds;
-
-		inline void setRgbwPixel(uint16_t indexPixel, RgbwColor color)
-		{
-			leds[indexPixel].setRGB(qadd8(color.R, color.W), qadd8(color.G, color.W), qadd8(color.B, color.W));
-		}
+		CRGBW* ledsRgbw;
 
 	public:
 		explicit FastLedStripBase(int count)
@@ -83,14 +76,9 @@ class FastLedStripBase : public ILedDriver
 			Begin();
 		}
 
-		void SetPixelColor(uint16_t indexPixel, RgbColor color) override
-		{
-			leds[indexPixel].setRGB(color.R, color.G, color.B);
-		}
-
 		void SetPixelColor(uint16_t indexPixel, RgbwColor color) override
 		{
-			setRgbwPixel(indexPixel, color);
+			leds[indexPixel] = color;
 		}
 };
 
@@ -108,7 +96,7 @@ class FastLedClocklessStrip : public FastLedStripBase<FastLedClocklessStrip<DATA
 		void BeginImpl()
 		{
 			#if defined(NEOPIXEL_RGBW)
-				FastLED.addLeds<SK6812, DATA_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount);
+				FastLED.addLeds<SK6812, DATA_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount).setRgbw(RgbwDefault());
 			#else
 				FastLED.addLeds<WS2812B, DATA_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount);
 			#endif

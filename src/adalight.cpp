@@ -9,19 +9,9 @@
 #include "powercontrol.h"
 #endif
 
-Adalight adalight;
-
-void Adalight::processDataTaskStatic(void * parameters)
-{
-	Adalight *self = static_cast<Adalight*>(parameters);
-	self->processDataTask(parameters);
-}
-
-void Adalight::processSerialTaskStatic(void * parameters)
-{
-	Adalight *self = static_cast<Adalight*>(parameters);
-	self->processSerialTask(parameters);
-}
+TaskHandle_t Adalight::processDataHandle = nullptr;
+TaskHandle_t Adalight::processSerialHandle = nullptr;
+xSemaphoreHandle Adalight::i2sXSemaphore = nullptr;
 
 void Adalight::processDataTask(void * parameters)
 {
@@ -36,7 +26,7 @@ void Adalight::processSerialTask(void * parameters)
 {
 	for(;;)
 	{
-		if (serialTaskHandler() || controller.queueCurrent != controller.queueEnd)
+		if (serialTaskHandler() || !controller.isAtEndOfQueue())
 			xSemaphoreGive(i2sXSemaphore);
 		yield();
 	}
@@ -48,17 +38,17 @@ bool Adalight::serialTaskHandler()
 
 	if (incomingSize > 0)
 	{
-		if (controller.queueEnd + incomingSize < MAX_BUFFER)
+		if (controller.getQueueEnd() + incomingSize < MAX_BUFFER)
 		{
-			Serial.read(&(controller.buffer[controller.queueEnd]), incomingSize);
-			controller.queueEnd += incomingSize;
+			Serial.read(controller.getBuffer(controller.getQueueEnd()), incomingSize);
+			controller.setQueueEnd(controller.getQueueEnd() + incomingSize);
 		}
 		else
 		{
-			int left = MAX_BUFFER - controller.queueEnd;
-			Serial.read(&(controller.buffer[controller.queueEnd]), left);
-			Serial.read(&(controller.buffer[0]), incomingSize - left);
-			controller.queueEnd = incomingSize - left;
+			int left = MAX_BUFFER - controller.getQueueEnd();
+			Serial.read(controller.getBuffer(controller.getQueueEnd()), left);
+			Serial.read(controller.getBuffer(0), incomingSize - left);
+			controller.setQueueEnd(incomingSize - left);
 		}
 	}
 
@@ -82,7 +72,7 @@ void Adalight::processData()
 	unsigned long currentTime = millis();
 	unsigned long deltaTime = currentTime - statistics.getStartTime();
 
-	updateAdalightStatistics(currentTime, deltaTime, controller.queueCurrent != controller.queueEnd);
+	updateAdalightStatistics(currentTime, deltaTime, !controller.isAtEndOfQueue());
 
 	if (statistics.getStartTime() + 5000 < millis())
 	{
@@ -97,13 +87,13 @@ void Adalight::processData()
         }
     }
         
-	while (controller.queueCurrent != controller.queueEnd)
+	while (!controller.isAtEndOfQueue())
 	{
-		byte input = controller.buffer[controller.queueCurrent++];
+		byte input = controller.getCurrentInput();
 
-		if (controller.queueCurrent >= MAX_BUFFER)
+		if (controller.getQueueCurrent() >= MAX_BUFFER)
 		{
-			controller.queueCurrent = 0;
+			controller.setQueueCurrent(0);
 			yield();
 		}
 
@@ -194,6 +184,10 @@ void Adalight::processData()
 			frameState.color.B = input;
 			frameState.addFletcher(input);
 
+			#ifdef NEOPIXEL_RGBW
+				frameState.rgb2rgbw();
+			#endif
+
 			if (controller.setStripPixel(frameState.getCurrentLedIndex(), frameState.color))
 			{
 				frameState.setState(AwaProtocol::RED);
@@ -209,25 +203,25 @@ void Adalight::processData()
 			break;
 
 		case AwaProtocol::VERSION2_GAIN:
-			frameState.calibration.gain = input;
+			calibration.setGain(input);
 			frameState.addFletcher(input);
 			frameState.setState(AwaProtocol::VERSION2_RED);
 			break;
 
 		case AwaProtocol::VERSION2_RED:
-			frameState.calibration.red = input;
+			calibration.setRed(input);
 			frameState.addFletcher(input);
 			frameState.setState(AwaProtocol::VERSION2_GREEN);
 			break;
 
 		case AwaProtocol::VERSION2_GREEN:
-			frameState.calibration.green = input;
+			calibration.setGreen(input);
 			frameState.addFletcher(input);
 			frameState.setState(AwaProtocol::VERSION2_BLUE);
 			break;
 
 		case AwaProtocol::VERSION2_BLUE:
-			frameState.calibration.blue = input;
+			calibration.setBlue(input);
 			frameState.addFletcher(input);
 			frameState.setState(AwaProtocol::FLETCHER1);
 			break;
@@ -256,11 +250,9 @@ void Adalight::processData()
 				    controller.renderLeds();
                 }
                 
-
-#if defined(NEOPIXEL_RGBW)
-				if (frameState.isProtocolVersion2())
-		            calibration.setParamsAndPrepare(frameState.calibration.gain, frameState.calibration.red, frameState.calibration.green, frameState.calibration.blue);
-#endif
+			#if defined(NEOPIXEL_RGBW)
+				calibration.prepare();
+			#endif
 
 				currentTime = millis();
 				deltaTime = currentTime - statistics.getStartTime();
@@ -276,21 +268,65 @@ void Adalight::processData()
 
 void Adalight::setupMultiCore()
 {
+	i2sXSemaphore = xSemaphoreCreateBinary();
+
 	xTaskCreatePinnedToCore(
-		processDataTaskStatic,
+		processDataTask,
 		"ProcessDataTask",
 		4096,
-		this,
+		NULL,
 		1,
 		&processDataHandle,
 		0);
 
 	xTaskCreatePinnedToCore(
-		processSerialTaskStatic,
+		processSerialTask,
 		"ProcessSerialTask",
 		4096,
-		this,
+		NULL,
 		1,
 		&processSerialHandle,
 		1);
+}
+
+void Adalight::init()
+{
+	#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+		#ifdef NEOPIXEL_RGBW
+			#ifdef COLD_WHITE
+				calibration.setParamsAndPrepare(0xFF, 0xA0, 0xA0, 0xA0);
+			#else
+				calibration.setParamsAndPrepare(0xFF, 0xB0, 0xB0, 0x70);
+			#endif
+		#endif
+	#endif
+
+	#if !defined(CONFIG_IDF_TARGET_ESP32S2)
+		Serial.println(HELLO_MESSAGE);
+
+		#if defined(SECOND_SEGMENT_START_INDEX)
+			Serial.write("SECOND_SEGMENT_START_INDEX = ");
+			Serial.println(SECOND_SEGMENT_START_INDEX);
+		#endif
+
+		// Colorspace/Led type info
+		#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+			#ifdef NEOPIXEL_RGBW
+				#ifdef COLD_WHITE
+					Serial.println("FastLED SK6812 cold GRBW. ");
+				#else
+					Serial.println("FastLED SK6812 neutral GRBW. ");
+				#endif
+				calibration.print();
+			#else
+				Serial.println("FastLED ws281x type (GRB).");
+			#endif
+		#elif defined(SPILED_APA102)
+			Serial.println("SPI APA102 compatible type (BGR).");
+		#elif defined(SPILED_WS2801)
+			Serial.println("SPI WS2801 (RBG).");
+		#endif
+
+		delay(50);
+	#endif
 }

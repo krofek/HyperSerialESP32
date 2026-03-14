@@ -31,30 +31,30 @@
 
 class Adalight {
 	public:
-		TaskHandle_t processDataHandle = nullptr;
-		TaskHandle_t processSerialHandle = nullptr;
-		// semaphore to synchronize them
-		xSemaphoreHandle i2sXSemaphore;
 
-		static void processDataTaskStatic(void * parameters);
-		static void processSerialTaskStatic(void * parameters);
+		static TaskHandle_t processDataHandle;
+		static TaskHandle_t processSerialHandle;
+		// semaphore to synchronize them
+		static xSemaphoreHandle i2sXSemaphore;
 
 		/**
 		 * @brief separete thread for handling incoming data using cyclic buffer
 		 *
 		 * @param parameters
 		 */
-		void processDataTask(void * parameters);
+		static void processDataTask(void * parameters);
 
-		void processSerialTask(void * parameters);
+		static void processSerialTask(void * parameters);
 
-		bool serialTaskHandler();
+		static bool serialTaskHandler();
 
-		void updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData);
+		static void updateAdalightStatistics(unsigned long currentTime, unsigned long deltaTime, bool hasData);
 
-		void processData();
+		static void processData();
 
-		void setupMultiCore();
+	#ifdef HS_MULTICORE
+		static void setupMultiCore();
+	#endif
+	
+		static void init();
 };
-
-extern Adalight adalight;

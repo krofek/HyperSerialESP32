@@ -71,7 +71,7 @@ class FrameState
 	uint8_t position = 0;
 
 	public:
-		ColorDefinition color;
+		RgbwColor color;
 
 		/**
 		 * @brief Reset statistics for new frame
@@ -171,17 +171,19 @@ class FrameState
 		 */
 		void updateIncomingCalibration();
 
+		#ifdef NEOPIXEL_RGBW
+			/**
+			* @brief Compute && correct the white channel
+			*
+			*/
+			void rgb2rgbw();
+		#endif
+
 		/**
 		 * @brief Incoming calibration data
 		 *
 		 */
-		struct
-		{
-			uint8_t gain = 0;
-			uint8_t red = 0;
-			uint8_t green = 0;
-			uint8_t blue = 0;
-		} calibration;
+		
 };
 
 extern FrameState frameState;

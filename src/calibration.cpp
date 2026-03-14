@@ -27,23 +27,40 @@ bool Calibration::compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, u
 	return _gain == gain && _red == red && _green == green && _blue == blue;
 }
 
-void Calibration::setParamsAndPrepare(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue)
-{
-	if (gain != _gain || red != _red || green != _green || blue != _blue)
-	{
-		gain = _gain;
-		red = _red;
-		green = _green;
-		blue = _blue;
-		prepare();
-	}
-}
-
 void Calibration::print()
 {
 	char output[128];
 	snprintf(output, sizeof(output), "RGBW => Gain: %i/255, red: %i, green: %i, blue: %i\r\n", gain, red, green, blue);
 	Serial.print(output);
+}
+
+void Calibration::setGain(uint8_t newGain)
+{
+	gain = newGain;
+}
+
+void Calibration::setRed(uint8_t newRed)
+{
+	red = newRed;
+}
+
+void Calibration::setGreen(uint8_t newGreen)
+{
+	green = newGreen;
+}
+
+void Calibration::setBlue(uint8_t newBlue)
+{
+	blue = newBlue;
+}
+
+void Calibration::setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t newGreen, uint8_t newBlue)
+{
+	gain = newGain;
+	red = newRed;
+	green = newGreen;
+	blue = newBlue;
+	prepare();
 }
 
 #endif

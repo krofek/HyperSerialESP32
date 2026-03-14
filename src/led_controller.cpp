@@ -80,13 +80,15 @@ void LedController::dropLateFrame()
 
 bool LedController::canRender(bool newFrame)
 {  
+	if(newFrame)
+		readyToRender = true;
 
 #if defined(SECOND_SEGMENT_START_INDEX)
- return newFrame &&
+ return readyToRender &&
 		(ledStrip1 != nullptr && ledStrip1->CanShow()) &&
 		!(ledStrip2 != nullptr && !ledStrip2->CanShow());
 #else
-	return newFrame && ledStrip1 != nullptr && ledStrip1->CanShow();
+	return readyToRender && ledStrip1 != nullptr && ledStrip1->CanShow();
 #endif
 
 }
@@ -105,7 +107,7 @@ void LedController::renderLeds()
 #endif
 }
 
-bool LedController::setStripPixel(uint16_t pix, ColorDefinition &inputColor)
+bool LedController::setStripPixel(uint16_t pix, RgbwColor &inputColor)
 {
 	if (pix < ledsNumber)
 	{
@@ -126,4 +128,39 @@ bool LedController::setStripPixel(uint16_t pix, ColorDefinition &inputColor)
 	}
 
 	return (pix + 1 < ledsNumber);
+}
+
+bool LedController::isAtEndOfQueue()
+{
+	return queueCurrent == queueEnd;
+}
+
+int LedController::getQueueCurrent()
+{
+	return queueCurrent;
+}
+
+int LedController::getQueueEnd()
+{
+	return queueEnd;
+}
+
+void LedController::setQueueCurrent(int newQueueCurrent)
+{
+	queueCurrent = newQueueCurrent;
+}
+
+void LedController::setQueueEnd(int newQueueEnd)
+{
+	queueEnd = newQueueEnd;
+}
+
+byte LedController::getCurrentInput()
+{
+	return buffer[queueCurrent++];
+}
+
+uint8_t* LedController::getBuffer(int index)
+{
+	return &buffer[index];
 }

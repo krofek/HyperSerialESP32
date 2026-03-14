@@ -41,21 +41,19 @@
 
 class LedController
 {
-	int ledsNumber = 0;
-	LED_DRIVER* ledStrip1 = nullptr;
-#if defined(SECOND_SEGMENT_START_INDEX)
-	LED_DRIVER2* ledStrip2 = nullptr;
-#endif
-	// frame is set and ready to render
-	bool readyToRender = false;
+	private:
+		uint8_t buffer[MAX_BUFFER + 1] = {0};
+		int queueCurrent = 0;
+		int queueEnd = 0;
+		int ledsNumber = 0;
+
+		LED_DRIVER* ledStrip1 = nullptr;
+	#if defined(SECOND_SEGMENT_START_INDEX)
+		LED_DRIVER2* ledStrip2 = nullptr;
+	#endif
+		bool readyToRender = false;
 
 	public:
-		// static data buffer for the loop
-		uint8_t buffer[MAX_BUFFER + 1] = {0};
-		volatile int queueCurrent = 0;
-		// queue end position
-		volatile int queueEnd = 0;
-
 		int getLedsNumber();
 
 		bool canRender(bool newFrame);
@@ -83,7 +81,21 @@ class LedController
 		void renderLeds();
 #endif
 
-		bool setStripPixel(uint16_t pix, ColorDefinition &inputColor);
+		bool setStripPixel(uint16_t pix, RgbwColor &inputColor);
+
+		bool isAtEndOfQueue();
+
+		int getQueueCurrent();
+
+		int getQueueEnd();
+
+		void setQueueCurrent(int newQueueCurrent);
+
+		void setQueueEnd(int newQueueEnd);
+
+		byte getCurrentInput();
+
+		uint8_t* getBuffer(int index);
 };
 
 extern LedController controller;

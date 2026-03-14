@@ -31,13 +31,6 @@
 #include <stdint.h>
 #include "config.h"
 
-#ifdef NEOPIXEL_RGBW
-	typedef RgbwColor ColorDefinition;
-#else
-	typedef RgbColor ColorDefinition;
-#endif
-
-
 #if defined(NEOPIXEL_RGBW)
 
 struct ChannelCorrection
@@ -50,17 +43,15 @@ struct ChannelCorrection
 
 class Calibration
 {
-	// calibration parameters
-	uint8_t gain = 0xFF;
-	uint8_t red = 0xA0;
-	uint8_t green = 0xA0;
-	uint8_t blue = 0xA0;
-
-	ChannelCorrection channelCorrection;
-
-	void prepare();
+	private:
+		uint8_t gain = 0xFF;
+		uint8_t red = 0xA0;
+		uint8_t green = 0xA0;
+		uint8_t blue = 0xA0;
 
 	public:
+		ChannelCorrection channelCorrection;
+
 		Calibration();
 
 		/**
@@ -69,21 +60,23 @@ class Calibration
 		 */
 		bool compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
 
-		/**
-		 * @brief Set the parameters that define RGB to RGBW transformation
-		 *
-		 * @param _gain
-		 * @param _red
-		 * @param _green
-		 * @param _blue
-		 */
-		void setParamsAndPrepare(uint8_t _gain, uint8_t _red, uint8_t _green, uint8_t _blue);
+		void prepare();
 
 		/**
 		 * @brief print RGBW calibration parameters when no data is received
 		 *
 		 */
 		void print();
+
+		void setGain(uint8_t newGain);
+
+		void setRed(uint8_t newRed);
+
+		void setGreen(uint8_t newGreen);
+
+		void setBlue(uint8_t newBlue);
+
+		void setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t newGreen, uint8_t newBlue);
 };
 
 extern Calibration calibration;
