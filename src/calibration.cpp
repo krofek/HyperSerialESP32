@@ -8,10 +8,10 @@ void Calibration::prepare()
 {
     for (uint32_t i = 0; i < 256; i++)
     {
-        channelCorrection.white[i] = (uint8_t)std::min(ROUND_DIVIDE(gain * i, 0xFF), (uint32_t)0xFF);
-        channelCorrection.red[i] = (uint8_t)std::min(ROUND_DIVIDE(red * i, 0xFF), (uint32_t)0xFF);
-        channelCorrection.green[i] = (uint8_t)std::min(ROUND_DIVIDE(green * i, 0xFF), (uint32_t)0xFF);
-        channelCorrection.blue[i] = (uint8_t)std::min(ROUND_DIVIDE(blue * i, 0xFF), (uint32_t)0xFF);
+        channelCorrection.white[i] = CORRECT_CHANNEL(gain * i);
+        channelCorrection.red[i] = CORRECT_CHANNEL(red * i);
+        channelCorrection.green[i] = CORRECT_CHANNEL(green * i);
+        channelCorrection.blue[i] = CORRECT_CHANNEL(blue * i);
     }
 }
 
@@ -27,9 +27,7 @@ bool Calibration::compareSettings(uint8_t _gain, uint8_t _red, uint8_t _green, u
 
 void Calibration::print()
 {
-    char output[128];
-    snprintf(output, sizeof(output), "RGBW => Gain: %i/255, red: %i, green: %i, blue: %i\r\n", gain, red, green, blue);
-    Serial.print(output);
+    Serial.printf("RGBW => Gain: %i/255, red: %i, green: %i, blue: %i\r\n", gain, red, green, blue);
 }
 
 void Calibration::setGain(uint8_t newGain)
@@ -59,6 +57,16 @@ void Calibration::setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t n
     green = newGreen;
     blue = newBlue;
     prepare();
+}
+
+void Calibration::rgb2rgbw(RgbwColor &color)
+{
+    color.W =
+        min(channelCorrection.red[color.R], min(channelCorrection.green[color.G], channelCorrection.blue[color.B]));
+    color.R -= channelCorrection.red[color.W];
+    color.G -= channelCorrection.green[color.W];
+    color.B -= channelCorrection.blue[color.W];
+    color.W = channelCorrection.white[color.W];
 }
 
 #endif

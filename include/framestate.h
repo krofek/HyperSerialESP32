@@ -30,8 +30,7 @@ all
 
 #include <Arduino.h>
 
-#include "calibration.h"
-#include "led_controller.h"
+#include "led_driver.h"
 
 /**
  * @brief my AWA frame protocol definition
@@ -63,6 +62,7 @@ enum class AwaProtocol
  */
 class FrameState
 {
+  private:
     volatile AwaProtocol state = AwaProtocol::HEADER_A;
     bool protocolVersion2 = false;
     uint8_t CRC = 0;
@@ -74,6 +74,10 @@ class FrameState
     uint8_t position = 0;
 
   public:
+    /**
+     * @brief Color of the current frame, used for RGBW conversion if needed
+     *
+     */
     RgbwColor color;
 
     /**
@@ -173,14 +177,6 @@ class FrameState
      *
      */
     void updateIncomingCalibration();
-
-#ifdef HS_NEOPIXEL_RGBW
-    /**
-     * @brief Compute && correct the white channel
-     *
-     */
-    void rgb2rgbw();
-#endif
 };
 
 extern FrameState frameState;

@@ -171,7 +171,7 @@ void Adalight::processData()
             frameState.addFletcher(input);
 
 #ifdef HS_NEOPIXEL_RGBW
-            frameState.rgb2rgbw();
+            calibration.rgb2rgbw(frameState.color);
 #endif
 
             if (controller.setStripPixel(frameState.getCurrentLedIndex(), frameState.color))
@@ -258,13 +258,11 @@ void Adalight::setupMultiCore()
     i2sXSemaphore = xSemaphoreCreateBinary();
 
     xTaskCreatePinnedToCore(processDataTask, "ProcessDataTask", 4096, NULL, 1, &processDataHandle, 0);
-
     xTaskCreatePinnedToCore(processSerialTask, "ProcessSerialTask", 4096, NULL, 1, &processSerialHandle, 1);
 }
 
 void Adalight::init()
 {
-#if defined(HS_NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
 #ifdef HS_NEOPIXEL_RGBW
 #ifdef HS_COLD_WHITE
     calibration.setParamsAndPrepare(0xFF, 0xA0, 0xA0, 0xA0);
@@ -272,9 +270,7 @@ void Adalight::init()
     calibration.setParamsAndPrepare(0xFF, 0xB0, 0xB0, 0x70);
 #endif
 #endif
-#endif
 
-#if !defined(CONFIG_IDF_TARGET_ESP32S2)
     Serial.println(HELLO_MESSAGE);
 
 #if defined(SECOND_SEGMENT_START_INDEX)
@@ -301,5 +297,4 @@ void Adalight::init()
 #endif
 
     delay(50);
-#endif
 }

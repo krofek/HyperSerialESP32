@@ -33,8 +33,7 @@ all
 #include <Arduino.h>
 
 #include "config.h"
-#include <algorithm>
-#include <stdint.h>
+#include "led_driver.h"
 
 struct ChannelCorrection
 {
@@ -112,6 +111,12 @@ class Calibration
      * @param newBlue
      */
     void setParamsAndPrepare(uint8_t newGain, uint8_t newRed, uint8_t newGreen, uint8_t newBlue);
+
+    /**
+     * @brief Compute && correct the white channel
+     *
+     */
+    void rgb2rgbw(RgbwColor &input);
 };
 
 extern Calibration calibration;

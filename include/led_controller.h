@@ -29,7 +29,6 @@ all
 
 #include "config.h"
 #include "led_adapter_fastled.h"
-#include "statistics.h"
 
 class LedController
 {

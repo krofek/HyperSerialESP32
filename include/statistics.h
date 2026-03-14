@@ -30,7 +30,6 @@ all
 
 #include <Arduino.h>
 
-#include "calibration.h"
 #include <algorithm>
 
 // statistics (stats sent only when there is no communication)

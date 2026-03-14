@@ -75,19 +75,3 @@ void FrameState::addFletcher(byte input)
     fletcher2 = (fletcher2 + fletcher1) % 255;
     fletcherExt = (fletcherExt + (input ^ (position++))) % 255;
 }
-
-#ifdef HS_NEOPIXEL_RGBW
-/**
- * @brief Compute && correct the white channel
- *
- */
-void FrameState::rgb2rgbw()
-{
-    color.W = min(calibration.channelCorrection.red[color.R],
-                  min(calibration.channelCorrection.green[color.G], calibration.channelCorrection.blue[color.B]));
-    color.R -= calibration.channelCorrection.red[color.W];
-    color.G -= calibration.channelCorrection.green[color.W];
-    color.B -= calibration.channelCorrection.blue[color.W];
-    color.W = calibration.channelCorrection.white[color.W];
-}
-#endif

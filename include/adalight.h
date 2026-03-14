@@ -30,7 +30,7 @@ all
 
 #include <Arduino.h>
 
-#include "config.h"
+#include "calibration.h"
 #include "framestate.h"
 #include "led_controller.h"
 #include "statistics.h"
