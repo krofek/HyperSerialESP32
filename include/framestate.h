@@ -174,7 +174,7 @@ class FrameState
      */
     void updateIncomingCalibration();
 
-#ifdef NEOPIXEL_RGBW
+#ifdef HS_NEOPIXEL_RGBW
     /**
      * @brief Compute && correct the white channel
      *

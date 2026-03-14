@@ -13,7 +13,7 @@
 #include <FastLED.h>
 #include <stdint.h>
 
-#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+#if defined(HS_NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
 #define LED_DRIVER ClocklessStripFastLed<HS_DATA_PIN, GRB>
 #elif defined(SPILED_APA102)
 #define LED_DRIVER Apa1002StripFastLed<HS_DATA_PIN, HS_CLOCK_PIN, BGR>
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(SECOND_SEGMENT_START_INDEX)
-#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+#if defined(HS_NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
 #define LED_DRIVER2 ClocklessStripFastLed<HS_SECOND_SEGMENT_DATA_PIN, GRB>
 #elif defined(SPILED_APA102)
 #define LED_DRIVER2 Apa1002StripFastLed<HS_SECOND_SEGMENT_DATA_PIN, HS_SECOND_SEGMENT_CLOCK_PIN, BGR>
@@ -83,7 +83,7 @@ class ClocklessStripFastLed : public LedAdapterFastLed<ClocklessStripFastLed<DAT
 
     void beginImpl()
     {
-#if defined(NEOPIXEL_RGBW)
+#if defined(HS_NEOPIXEL_RGBW)
         FastLED.addLeds<SK6812, DATA_GPIO, static_cast<EOrder>(PIXEL_ORDER_VALUE)>(this->leds, this->ledCount)
             .setRgbw(RgbwDefault());
 #else

@@ -138,7 +138,7 @@ void Adalight::processData()
             else if (frameState.getCount() == 0x2aa2 && (input == 0x15 || input == 0x35))
             {
                 statistics.print(currentTime, processDataHandle, processSerialHandle);
-#if defined(NEOPIXEL_RGBW)
+#if defined(HS_NEOPIXEL_RGBW)
                 calibration.print();
 #endif
 
@@ -170,7 +170,7 @@ void Adalight::processData()
             frameState.color.B = input;
             frameState.addFletcher(input);
 
-#ifdef NEOPIXEL_RGBW
+#ifdef HS_NEOPIXEL_RGBW
             frameState.rgb2rgbw();
 #endif
 
@@ -237,7 +237,7 @@ void Adalight::processData()
                     controller.renderLeds();
                 }
 
-#if defined(NEOPIXEL_RGBW)
+#if defined(HS_NEOPIXEL_RGBW)
                 calibration.prepare();
 #endif
 
@@ -264,9 +264,9 @@ void Adalight::setupMultiCore()
 
 void Adalight::init()
 {
-#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-#ifdef NEOPIXEL_RGBW
-#ifdef COLD_WHITE
+#if defined(HS_NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+#ifdef HS_NEOPIXEL_RGBW
+#ifdef HS_COLD_WHITE
     calibration.setParamsAndPrepare(0xFF, 0xA0, 0xA0, 0xA0);
 #else
     calibration.setParamsAndPrepare(0xFF, 0xB0, 0xB0, 0x70);
@@ -283,9 +283,9 @@ void Adalight::init()
 #endif
 
 // Colorspace/Led type info
-#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-#ifdef NEOPIXEL_RGBW
-#ifdef COLD_WHITE
+#if defined(HS_NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+#ifdef HS_NEOPIXEL_RGBW
+#ifdef HS_COLD_WHITE
     Serial.println("FastLED SK6812 cold GRBW. ");
 #else
     Serial.println("FastLED SK6812 neutral GRBW. ");

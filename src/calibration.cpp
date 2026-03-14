@@ -1,6 +1,6 @@
 #include "calibration.h"
 
-#if defined(NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
+#if defined(HS_NEOPIXEL_RGBW) || defined(HYPERSERIAL_TESTING)
 
 Calibration calibration;
 

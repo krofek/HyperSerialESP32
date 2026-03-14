@@ -121,7 +121,7 @@ You add these to your board's config. Be sure to put `-D` in front of each setti
 Examples of final build_flags for 288 LEDs divided into 2 equal segments in the `platformio.ini`:
 ```
 [env:SK6812_RGBW_COLD]
-build_flags = -DNEOPIXEL_RGBW -DCOLD_WHITE -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
+build_flags = -DHS_NEOPIXEL_RGBW -DHS_COLD_WHITE -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED
 ...
 [env:WS281x_RGB]
 build_flags = -DNEOPIXEL_RGB -DHS_DATA_PIN=2 ${env.build_flags} -DSECOND_SEGMENT_START_INDEX=144 -DHS_SECOND_SEGMENT_DATA_PIN=4 -DSECOND_SEGMENT_REVERSED

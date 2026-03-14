@@ -76,7 +76,7 @@ void FrameState::addFletcher(byte input)
     fletcherExt = (fletcherExt + (input ^ (position++))) % 255;
 }
 
-#ifdef NEOPIXEL_RGBW
+#ifdef HS_NEOPIXEL_RGBW
 /**
  * @brief Compute && correct the white channel
  *

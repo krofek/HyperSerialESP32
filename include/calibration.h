@@ -28,7 +28,7 @@ all
 
 #pragma once
 
-#if defined(NEOPIXEL_RGBW)
+#if defined(HS_NEOPIXEL_RGBW)
 
 #include "config.h"
 #include <Arduino.h>
